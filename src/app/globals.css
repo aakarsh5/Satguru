@@ -21,7 +21,7 @@
   --color-status-cancelled-text: var(--status-cancelled-text);
   --color-status-refunded-bg: var(--status-refunded-bg);
   --color-status-refunded-text: var(--status-refunded-text);
-  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
