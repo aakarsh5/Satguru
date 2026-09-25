@@ -40,7 +40,8 @@ const productSchema = z.object({
 export async function loginAction(formData: FormData) {
   const email = String(formData.get("email") ?? "")
   const password = String(formData.get("password") ?? "")
-  if (!(await authenticateAdmin(email, password))) redirect("/admin/login?error=invalid")
+  const result = await authenticateAdmin(email, password)
+  if (!result.ok) redirect(`/admin/login?error=${result.reason}`)
   redirect("/admin")
 }
 

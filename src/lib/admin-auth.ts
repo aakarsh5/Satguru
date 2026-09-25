@@ -58,18 +58,39 @@ export async function authenticateAdmin(email: string, password: string) {
     configuredEmail.length > 0 &&
     email.trim().toLowerCase() === configuredEmail.toLowerCase()
   const passwordHashFormatValid = /^scrypt\$[a-f\d]{32}\$[a-f\d]{128}$/i.test(encodedHash)
-  const passwordMatches = emailMatches && passwordHashFormatValid && verifyPassword(password, encodedHash)
 
-  if (!passwordMatches) {
+  if (!configuredEmail || !rawHash || !passwordHashFormatValid) {
     // Keep diagnostics useful while never logging submitted credentials or secrets.
     console.warn("Admin login rejected", {
       emailConfigured: Boolean(configuredEmail),
       emailMatched: emailMatches,
       passwordHashConfigured: Boolean(rawHash),
       passwordHashFormatValid,
-      passwordMatched: passwordMatches,
+      passwordMatched: false,
     })
-    return false
+    return { ok: false as const, reason: "configuration" as const }
+  }
+
+  if (!emailMatches) {
+    console.warn("Admin login rejected", {
+      emailConfigured: true,
+      emailMatched: false,
+      passwordHashConfigured: true,
+      passwordHashFormatValid: true,
+      passwordChecked: false,
+    })
+    return { ok: false as const, reason: "email" as const }
+  }
+
+  if (!verifyPassword(password, encodedHash)) {
+    console.warn("Admin login rejected", {
+      emailConfigured: true,
+      emailMatched: true,
+      passwordHashConfigured: true,
+      passwordHashFormatValid: true,
+      passwordMatched: false,
+    })
+    return { ok: false as const, reason: "password" as const }
   }
 
   const payload = `${configuredEmail}|${Date.now() + SESSION_TTL * 1000}`
@@ -86,7 +107,7 @@ export async function authenticateAdmin(email: string, password: string) {
     path: "/",
     maxAge: SESSION_TTL,
   })
-  return true
+  return { ok: true as const }
 }
 
 export async function getAdminSession() {
