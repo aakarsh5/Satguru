@@ -38,6 +38,8 @@ function normalizePasswordHash(encoded: string) {
   return encoded
     .trim()
     .replace(/^['"]|['"]$/g, "")
+    .replace(/^ADMIN_PASSWORD_HASH\s*=\s*/i, "")
+    .replace(/^['"]|['"]$/g, "")
     .replace(/\\\$/g, "$")
 }
 
