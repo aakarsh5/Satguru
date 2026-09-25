@@ -1,0 +1,91 @@
+{
+    "common":  {
+                   "shopNow":  "Comprar Ahora",
+                   "ourStory":  "Nuestra Historia",
+                   "viewAll":  "Ver todo",
+                   "continueShopping":  "Seguir Comprando",
+                   "loading":  "Cargando...",
+                   "tryAgain":  "Intentar de Nuevo",
+                   "goHome":  "Ir al Inicio",
+                   "browseProducts":  "Explorar Productos",
+                   "startShopping":  "Comenzar a Comprar",
+                   "subscribe":  "Suscribirse",
+                   "sendMessage":  "Enviar Mensaje",
+                   "sending":  "Enviando...",
+                   "saveChanges":  "Guardar Cambios",
+                   "cancel":  "Cancelar",
+                   "back":  "Volver",
+                   "close":  "Cerrar",
+                   "contactUs":  "ContÃ¡ctanos",
+                   "search":  "Buscar",
+                   "sale":  "Oferta",
+                   "off":  "de descuento",
+                   "options":  "opciones",
+                   "products":  "productos",
+                   "product":  "producto"
+               },
+    "nav":  {
+                "shop":  "TIENDA",
+                "info":  "INFO",
+                "openMenu":  "Abrir menÃº",
+                "searchProducts":  "Buscar productos"
+            },
+    "home":  {
+                 "freeShipping":  "EnvÃ­o gratis en pedidos superiores a {threshold}",
+                 "shopByCategory":  "Comprar por CategorÃ­a",
+                 "featuredProducts":  "Productos Destacados",
+                 "joinNewsletter":  "Ãšnete a nuestro boletÃ­n",
+                 "newsletterDescription":  "Recibe actualizaciones sobre nuevos productos y ofertas exclusivas.",
+                 "enterEmail":  "Ingresa tu correo",
+                 "subscribedSuccess":  "Â¡Gracias por suscribirte!"
+             },
+    "shop":  {
+                 "allProducts":  "Todos los Productos",
+                 "shopAll":  "Ver Todo",
+                 "sortBy":  "Ordenar productos por",
+                 "newest":  "MÃ¡s recientes",
+                 "nameAZ":  "Nombre: A-Z"
+             },
+    "product":  {
+                    "youMayAlsoLike":  "TambiÃ©n te puede gustar"
+                },
+    "search":  {
+                   "title":  "Buscar",
+                   "placeholder":  "Buscar productos...",
+                   "searchTip":  "Intenta buscar por nombre de producto, categorÃ­a o palabra clave.",
+                   "noResults":  "No se encontraron productos para \"{query}\". Intenta con otro tÃ©rmino.",
+                   "resultsFor":  "resultados para",
+                   "resultFor":  "resultado para",
+                   "viewAllResults":  "Ver todos los resultados",
+                   "popularSearches":  "BÃºsquedas Populares"
+               },
+    "contact":  {
+                    "title":  "ContÃ¡ctanos",
+                    "description":  "Â¿Tienes alguna pregunta o necesitas ayuda? Completa el formulario a continuaciÃ³n y te responderemos lo antes posible.",
+                    "name":  "Nombre",
+                    "yourName":  "Tu nombre",
+                    "emailPlaceholder":  "tu@ejemplo.com",
+                    "subject":  "Asunto",
+                    "subjectPlaceholder":  "Â¿En quÃ© podemos ayudarte?",
+                    "message":  "Mensaje",
+                    "messagePlaceholder":  "CuÃ©ntanos mÃ¡s...",
+                    "fillAllFields":  "Por favor completa todos los campos",
+                    "messageMinLength":  "El mensaje debe tener al menos 10 caracteres",
+                    "messageSent":  "Â¡Mensaje enviado! Te responderemos pronto."
+                },
+    "errors":  {
+                   "notFound":  "PÃ¡gina no encontrada",
+                   "notFoundDescription":  "Lo sentimos, no pudimos encontrar la pÃ¡gina que buscas.",
+                   "somethingWrong":  "Algo saliÃ³ mal",
+                   "couldntLoad":  "No pudimos cargar esta pÃ¡gina",
+                   "tryAgainDescription":  "Por favor intenta de nuevo. Si el problema persiste, contacta soporte."
+               },
+    "footer":  {
+                   "shopColumn":  "Tienda",
+                   "companyColumn":  "Empresa",
+                   "legalColumn":  "Legal"
+               },
+    "brands":  {
+                   "title":  "Todas las Marcas"
+               }
+}

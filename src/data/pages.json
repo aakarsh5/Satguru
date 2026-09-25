@@ -1,0 +1,22 @@
+{
+    "pages":  [
+                  {
+                      "id":  "page-1",
+                      "title":  "Our Story",
+                      "slug":  "our-story",
+                      "excerpt":  "How we got started and what drives us.",
+                      "body":  "\u003ch2\u003eIt Started with a Problem\u003c/h2\u003e\u003cp\u003eA few years ago, we were frustrated. Every online store looked the same. Stock photos, generic product copy, checkout flows that felt like obstacle courses.\u003c/p\u003e\u003cp\u003eWe believed there was a better way â€” stores that felt personal, products that were genuinely useful, and buying experiences that respected the customer\u0027s time.\u003c/p\u003e\u003ch2\u003eWhat We Believe\u003c/h2\u003e\u003cul\u003e\u003cli\u003e\u003cstrong\u003eQuality over quantity\u003c/strong\u003e â€” We\u0027d rather carry fewer things done right than a catalog full of mediocrity.\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eTransparency\u003c/strong\u003e â€” If we can tell you where something comes from, how it\u0027s made, and who made it, we will.\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eLasting goods\u003c/strong\u003e â€” Products you\u0027ll still love in five years, not five months.\u003c/li\u003e\u003c/ul\u003e\u003ch2\u003eWhere We\u0027re Going\u003c/h2\u003e\u003cp\u003eWe\u0027re still figuring it out, and that\u0027s the fun part. We add new products when we find ones we love. We work with small makers when we can. And we try to be honest when we get it wrong.\u003c/p\u003e\u003cp\u003eThanks for being here.\u003c/p\u003e",
+                      "publishedAt":  "2025-01-15T10:00:00Z",
+                      "updatedAt":  "2025-04-01T10:00:00Z"
+                  },
+                  {
+                      "id":  "page-3",
+                      "title":  "Sustainability",
+                      "slug":  "sustainability",
+                      "excerpt":  "Our approach to sourcing, packaging, and making things that last.",
+                      "body":  "\u003ch2\u003eMaking Less Stuff, Better\u003c/h2\u003e\u003cp\u003eThe most sustainable product is the one that doesn\u0027t need to be replaced. We focus on quality, repairability, and timeless design so your purchases last for years, not seasons.\u003c/p\u003e\u003ch2\u003eSourcing\u003c/h2\u003e\u003cp\u003eWhenever we can, we work directly with small makers, family-owned mills, and certified sustainable suppliers. We prioritize:\u003c/p\u003e\u003cul\u003e\u003cli\u003eOrganic and recycled materials\u003c/li\u003e\u003cli\u003eFair labor practices\u003c/li\u003e\u003cli\u003eRegional sourcing to reduce shipping footprint\u003c/li\u003e\u003cli\u003eTransparent supply chains\u003c/li\u003e\u003c/ul\u003e\u003ch2\u003ePackaging\u003c/h2\u003e\u003cp\u003eAll our shipping materials are recyclable or compostable. We\u0027ve eliminated plastic mailers, bubble wrap, and styrofoam. Your order arrives in a kraft box with paper-based protective fill.\u003c/p\u003e\u003ch2\u003eWhat We\u0027re Still Working On\u003c/h2\u003e\u003cp\u003eWe\u0027re not perfect. Some things we\u0027re actively improving:\u003c/p\u003e\u003col\u003e\u003cli\u003eCarbon-offset shipping by default (we currently offer it as an option)\u003c/li\u003e\u003cli\u003eTake-back program for worn-out products\u003c/li\u003e\u003cli\u003eMore regional warehouses to shorten shipping distances\u003c/li\u003e\u003c/ol\u003e\u003cp\u003eWe publish an annual sustainability report â€” \u003ca href=\"/contact\"\u003ereach out\u003c/a\u003e if you\u0027d like a copy.\u003c/p\u003e",
+                      "publishedAt":  "2025-03-01T10:00:00Z",
+                      "updatedAt":  "2025-04-10T10:00:00Z"
+                  }
+              ]
+}

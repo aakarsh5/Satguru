@@ -1,0 +1,91 @@
+{
+    "common":  {
+                   "shopNow":  "Shop Now",
+                   "ourStory":  "Our Story",
+                   "viewAll":  "View all",
+                   "continueShopping":  "Continue Shopping",
+                   "loading":  "Loading...",
+                   "tryAgain":  "Try Again",
+                   "goHome":  "Go Home",
+                   "browseProducts":  "Browse Products",
+                   "startShopping":  "Start Shopping",
+                   "subscribe":  "Subscribe",
+                   "sendMessage":  "Send Message",
+                   "sending":  "Sending...",
+                   "saveChanges":  "Save Changes",
+                   "cancel":  "Cancel",
+                   "back":  "Back",
+                   "close":  "Close",
+                   "contactUs":  "Contact Us",
+                   "search":  "Search",
+                   "sale":  "Sale",
+                   "off":  "off",
+                   "options":  "options",
+                   "products":  "products",
+                   "product":  "product"
+               },
+    "nav":  {
+                "shop":  "SHOP",
+                "info":  "INFO",
+                "openMenu":  "Open menu",
+                "searchProducts":  "Search products"
+            },
+    "home":  {
+                 "freeShipping":  "Free shipping on orders over {threshold}",
+                 "shopByCategory":  "Shop by Category",
+                 "featuredProducts":  "Featured Products",
+                 "joinNewsletter":  "Join our newsletter",
+                 "newsletterDescription":  "Get updates on new arrivals and exclusive offers.",
+                 "enterEmail":  "Enter your email",
+                 "subscribedSuccess":  "Thanks for subscribing!"
+             },
+    "shop":  {
+                 "allProducts":  "All Products",
+                 "shopAll":  "Shop All",
+                 "sortBy":  "Sort products by",
+                 "newest":  "Newest",
+                 "nameAZ":  "Name: A-Z"
+             },
+    "product":  {
+                    "youMayAlsoLike":  "You may also like"
+                },
+    "search":  {
+                   "title":  "Search",
+                   "placeholder":  "Search products...",
+                   "searchTip":  "Try searching for a product name, category, or keyword.",
+                   "noResults":  "No products found for \"{query}\". Try a different search term.",
+                   "resultsFor":  "results for",
+                   "resultFor":  "result for",
+                   "viewAllResults":  "View all results",
+                   "popularSearches":  "Popular Searches"
+               },
+    "contact":  {
+                    "title":  "Contact Us",
+                    "description":  "Have a question or need help? Fill out the form below and we\u0027ll get back to you as soon as possible.",
+                    "name":  "Name",
+                    "yourName":  "Your name",
+                    "emailPlaceholder":  "you@example.com",
+                    "subject":  "Subject",
+                    "subjectPlaceholder":  "How can we help?",
+                    "message":  "Message",
+                    "messagePlaceholder":  "Tell us more...",
+                    "fillAllFields":  "Please fill in all fields",
+                    "messageMinLength":  "Message must be at least 10 characters",
+                    "messageSent":  "Message sent! We\u0027ll get back to you soon."
+                },
+    "errors":  {
+                   "notFound":  "Page not found",
+                   "notFoundDescription":  "Sorry, we couldn\u0027t find the page you\u0027re looking for.",
+                   "somethingWrong":  "Something went wrong",
+                   "couldntLoad":  "We couldn\u0027t load this page",
+                   "tryAgainDescription":  "Please try again. If the problem persists, contact support."
+               },
+    "footer":  {
+                   "shopColumn":  "Shop",
+                   "companyColumn":  "Company",
+                   "legalColumn":  "Legal"
+               },
+    "brands":  {
+                   "title":  "All Brands"
+               }
+}
