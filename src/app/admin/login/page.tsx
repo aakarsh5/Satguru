@@ -2,14 +2,21 @@ import { loginAction } from "../actions"
 
 export default async function AdminLoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams
-  const errorMessage =
-    error === "email"
-      ? "This email does not match the configured admin account. The password was not checked."
-      : error === "password"
-        ? "The email matches, but the password is incorrect."
-        : error === "configuration"
-          ? "Admin sign-in is not configured correctly. Check the deployment environment variables."
-          : null
+  const errorMessage = process.env.NODE_ENV === "development"
+    ? error === "email-config"
+      ? "Development error: ADMIN_EMAIL is missing from this environment."
+      : error === "hash-missing"
+        ? "Development error: ADMIN_PASSWORD_HASH is missing from this environment."
+        : error === "hash-format"
+          ? "Development error: ADMIN_PASSWORD_HASH must be scrypt$<32 hexadecimal salt>$<128 hexadecimal digest>."
+          : error === "email"
+            ? "Development error: the entered email does not match ADMIN_EMAIL. The password was not checked."
+            : error === "password"
+              ? "Development error: the email matches, but the plain-text password does not match ADMIN_PASSWORD_HASH."
+              : null
+    : error
+      ? "Unable to sign in. Check your credentials."
+      : null
 
   return (
     <main className="mx-auto mt-24 max-w-sm px-4">

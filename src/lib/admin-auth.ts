@@ -59,16 +59,38 @@ export async function authenticateAdmin(email: string, password: string) {
     email.trim().toLowerCase() === configuredEmail.toLowerCase()
   const passwordHashFormatValid = /^scrypt\$[a-f\d]{32}\$[a-f\d]{128}$/i.test(encodedHash)
 
-  if (!configuredEmail || !rawHash || !passwordHashFormatValid) {
+  if (!configuredEmail) {
     // Keep diagnostics useful while never logging submitted credentials or secrets.
     console.warn("Admin login rejected", {
-      emailConfigured: Boolean(configuredEmail),
+      emailConfigured: false,
       emailMatched: emailMatches,
       passwordHashConfigured: Boolean(rawHash),
       passwordHashFormatValid,
       passwordMatched: false,
     })
-    return { ok: false as const, reason: "configuration" as const }
+    return { ok: false as const, reason: "email-config" as const }
+  }
+
+  if (!rawHash) {
+    console.warn("Admin login rejected", {
+      emailConfigured: true,
+      emailMatched: emailMatches,
+      passwordHashConfigured: false,
+      passwordHashFormatValid: false,
+      passwordMatched: false,
+    })
+    return { ok: false as const, reason: "hash-missing" as const }
+  }
+
+  if (!passwordHashFormatValid) {
+    console.warn("Admin login rejected", {
+      emailConfigured: true,
+      emailMatched: emailMatches,
+      passwordHashConfigured: true,
+      passwordHashFormatValid: false,
+      passwordMatched: false,
+    })
+    return { ok: false as const, reason: "hash-format" as const }
   }
 
   if (!emailMatches) {

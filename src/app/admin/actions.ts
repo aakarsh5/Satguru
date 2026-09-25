@@ -41,7 +41,10 @@ export async function loginAction(formData: FormData) {
   const email = String(formData.get("email") ?? "")
   const password = String(formData.get("password") ?? "")
   const result = await authenticateAdmin(email, password)
-  if (!result.ok) redirect(`/admin/login?error=${result.reason}`)
+  if (!result.ok) {
+    const error = process.env.NODE_ENV === "development" ? result.reason : "invalid"
+    redirect(`/admin/login?error=${error}`)
+  }
   redirect("/admin")
 }
 
