@@ -20,11 +20,25 @@ export function hashAdminPassword(password: string, salt = randomBytes(16).toStr
 }
 
 function verifyPassword(password: string, encoded: string) {
-  const [, salt, expected] = encoded.split("$")
-  if (!salt || !expected) return false
+  const [algorithm, salt, expected, ...extra] = encoded.split("$")
+  if (
+    algorithm !== "scrypt" ||
+    !salt ||
+    !expected ||
+    extra.length > 0 ||
+    !/^[a-f\d]{32}$/i.test(salt) ||
+    !/^[a-f\d]{128}$/i.test(expected)
+  ) return false
   const actual = scryptSync(password, salt, 64)
   const expectedBuffer = Buffer.from(expected, "hex")
   return actual.length === expectedBuffer.length && timingSafeEqual(actual, expectedBuffer)
+}
+
+function normalizePasswordHash(encoded: string) {
+  return encoded
+    .trim()
+    .replace(/^['"]|['"]$/g, "")
+    .replace(/\\\$/g, "$")
 }
 
 function sign(value: string) {
@@ -34,10 +48,26 @@ function sign(value: string) {
 }
 
 export async function authenticateAdmin(email: string, password: string) {
-  const configuredEmail = process.env.ADMIN_EMAIL
-  const encodedHash = process.env.ADMIN_PASSWORD_HASH
-  if (!configuredEmail || !encodedHash || email !== configuredEmail || !verifyPassword(password, encodedHash)) return false
-  const payload = `${email}|${Date.now() + SESSION_TTL * 1000}`
+  const configuredEmail = process.env.ADMIN_EMAIL?.trim()
+  const rawHash = process.env.ADMIN_PASSWORD_HASH
+  const encodedHash = rawHash ? normalizePasswordHash(rawHash) : ""
+  const emailMatches = Boolean(configuredEmail) && email.trim().toLowerCase() === configuredEmail.toLowerCase()
+  const passwordHashFormatValid = /^scrypt\$[a-f\d]{32}\$[a-f\d]{128}$/i.test(encodedHash)
+  const passwordMatches = emailMatches && passwordHashFormatValid && verifyPassword(password, encodedHash)
+
+  if (!passwordMatches) {
+    // Keep diagnostics useful while never logging submitted credentials or secrets.
+    console.warn("Admin login rejected", {
+      emailConfigured: Boolean(configuredEmail),
+      emailMatched: emailMatches,
+      passwordHashConfigured: Boolean(rawHash),
+      passwordHashFormatValid,
+      passwordMatched: passwordMatches,
+    })
+    return false
+  }
+
+  const payload = `${configuredEmail}|${Date.now() + SESSION_TTL * 1000}`
   const encodedPayload = Buffer.from(payload).toString("base64url")
   const value = `${encodedPayload}.${sign(encodedPayload)}`
   const cookieStore = await cookies()
@@ -60,7 +90,7 @@ export async function getAdminSession() {
   if (!encodedPayload || !signature || !secret() || sign(encodedPayload) !== signature) return null
   const payload = Buffer.from(encodedPayload, "base64url").toString("utf8")
   const [email, expiresAt] = payload.split("|")
-  if (!email || Number(expiresAt) < Date.now() || email !== process.env.ADMIN_EMAIL) return null
+  if (!email || Number(expiresAt) < Date.now() || email !== process.env.ADMIN_EMAIL?.trim()) return null
   return { email }
 }
 
