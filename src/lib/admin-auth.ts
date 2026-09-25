@@ -51,7 +51,10 @@ export async function authenticateAdmin(email: string, password: string) {
   const configuredEmail = process.env.ADMIN_EMAIL?.trim()
   const rawHash = process.env.ADMIN_PASSWORD_HASH
   const encodedHash = rawHash ? normalizePasswordHash(rawHash) : ""
-  const emailMatches = Boolean(configuredEmail) && email.trim().toLowerCase() === configuredEmail.toLowerCase()
+  const emailMatches =
+    configuredEmail !== undefined &&
+    configuredEmail.length > 0 &&
+    email.trim().toLowerCase() === configuredEmail.toLowerCase()
   const passwordHashFormatValid = /^scrypt\$[a-f\d]{32}\$[a-f\d]{128}$/i.test(encodedHash)
   const passwordMatches = emailMatches && passwordHashFormatValid && verifyPassword(password, encodedHash)
 
