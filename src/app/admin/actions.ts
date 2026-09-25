@@ -42,7 +42,8 @@ export async function loginAction(formData: FormData) {
   const password = String(formData.get("password") ?? "")
   const result = await authenticateAdmin(email, password)
   if (!result.ok) {
-    const error = process.env.NODE_ENV === "development" ? result.reason : "invalid"
+    const showAuthDiagnostics = process.env.NODE_ENV === "development" || process.env.ADMIN_AUTH_DEBUG === "true"
+    const error = showAuthDiagnostics ? result.reason : "invalid"
     redirect(`/admin/login?error=${error}`)
   }
   redirect("/admin")

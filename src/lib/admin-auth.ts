@@ -50,6 +50,7 @@ function sign(value: string) {
 }
 
 export async function authenticateAdmin(email: string, password: string) {
+  const authDebug = process.env.NODE_ENV === "development" || process.env.ADMIN_AUTH_DEBUG === "true"
   const configuredEmail = process.env.ADMIN_EMAIL?.trim()
   const rawHash = process.env.ADMIN_PASSWORD_HASH
   const encodedHash = rawHash ? normalizePasswordHash(rawHash) : ""
@@ -93,26 +94,23 @@ export async function authenticateAdmin(email: string, password: string) {
     return { ok: false as const, reason: "hash-format" as const }
   }
 
-  if (!emailMatches) {
+  // In debug mode, check both fields so the login page can distinguish an
+  // email mismatch, password mismatch, or both. Never log or display values.
+  const passwordChecked = emailMatches || authDebug
+  const passwordMatches = passwordChecked && verifyPassword(password, encodedHash)
+  if (!emailMatches || !passwordMatches) {
+    const reason = !emailMatches
+      ? passwordMatches ? "email" : authDebug ? "both" : "invalid"
+      : "password"
     console.warn("Admin login rejected", {
       emailConfigured: true,
-      emailMatched: false,
+      emailMatched: emailMatches,
       passwordHashConfigured: true,
       passwordHashFormatValid: true,
-      passwordChecked: false,
+      passwordChecked,
+      passwordMatched: passwordChecked ? passwordMatches : undefined,
     })
-    return { ok: false as const, reason: "email" as const }
-  }
-
-  if (!verifyPassword(password, encodedHash)) {
-    console.warn("Admin login rejected", {
-      emailConfigured: true,
-      emailMatched: true,
-      passwordHashConfigured: true,
-      passwordHashFormatValid: true,
-      passwordMatched: false,
-    })
-    return { ok: false as const, reason: "password" as const }
+    return { ok: false as const, reason }
   }
 
   const payload = `${configuredEmail}|${Date.now() + SESSION_TTL * 1000}`

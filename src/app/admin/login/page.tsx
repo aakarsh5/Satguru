@@ -2,7 +2,8 @@ import { loginAction } from "../actions"
 
 export default async function AdminLoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams
-  const errorMessage = process.env.NODE_ENV === "development"
+  const showAuthDiagnostics = process.env.NODE_ENV === "development" || process.env.ADMIN_AUTH_DEBUG === "true"
+  const errorMessage = showAuthDiagnostics
     ? error === "email-config"
       ? "Development error: ADMIN_EMAIL is missing from this environment."
       : error === "hash-missing"
@@ -10,9 +11,11 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
         : error === "hash-format"
           ? "Development error: ADMIN_PASSWORD_HASH must be scrypt$<32 hexadecimal salt>$<128 hexadecimal digest>."
           : error === "email"
-            ? "Development error: the entered email does not match ADMIN_EMAIL. The password was not checked."
+            ? "Diagnostic: the email does not match ADMIN_EMAIL; the password matches."
+            : error === "both"
+              ? "Diagnostic: neither the email nor the password matches the configured admin credentials."
             : error === "password"
-              ? "Development error: the email matches, but the plain-text password does not match ADMIN_PASSWORD_HASH."
+              ? "Diagnostic: the email matches, but the password does not match ADMIN_PASSWORD_HASH."
               : null
     : error
       ? "Unable to sign in. Check your credentials."
