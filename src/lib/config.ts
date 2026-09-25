@@ -3,6 +3,14 @@
 // Edit this file to customize the store name, contact info, social links, etc.
 // ============================================================================
 
+// Ignore an empty value from deployment settings so metadataBase always gets
+// a valid absolute URL during a Vercel build.
+const configuredBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.trim()
+const deploymentUrl = process.env.VERCEL_URL?.trim()
+const siteUrl =
+  configuredBaseUrl ||
+  (deploymentUrl ? `https://${deploymentUrl}` : "http://localhost:3000")
+
 export const siteConfig = {
   // Branding
   name: "Satguru Product Catalog",
@@ -14,7 +22,7 @@ export const siteConfig = {
   announcement: "Explore our latest products and enquire with our team.",
 
   // URLs
-  url: process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000",
+  url: siteUrl,
 
   // Contact
   contact: {
