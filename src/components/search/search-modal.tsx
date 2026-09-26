@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
-import Image from "next/image"
+import { ProductImage } from "@/components/ui/product-image"
 import { Search, X, ArrowRight } from "lucide-react"
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"
 import type { Product } from "@/types"
 import data from "@/data/products.json"
 
@@ -136,8 +135,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       className="flex items-center gap-4 rounded-lg p-3 transition-colors hover:bg-neutral-50"
                     >
                       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-neutral-100">
-                        <Image
-                          src={product.images[0]?.url ?? PLACEHOLDER_IMAGE}
+                        <ProductImage
+                          src={product.images[0]?.url}
                           alt={product.images[0]?.alt ?? product.name}
                           fill
                           className="object-cover"

@@ -1,6 +1,5 @@
 import Link from "next/link"
-import Image from "next/image"
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"
+import { ProductImage } from "@/components/ui/product-image"
 import type { Product } from "@/types"
 
 interface ProductCardProps {
@@ -13,8 +12,8 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/${product.slug}`} className="group">
       <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
-        <Image
-          src={image?.url ?? PLACEHOLDER_IMAGE}
+        <ProductImage
+          src={image?.url}
           alt={image?.alt ?? product.name}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import { PLACEHOLDER_IMAGE } from "@/lib/constants"
 import { cn } from "@/lib/utils"
@@ -26,7 +26,10 @@ export function ProductImage({
   priority,
   className,
 }: ProductImageProps) {
-  const [imgSrc, setImgSrc] = useState(src || PLACEHOLDER_IMAGE)
+  const source = src || PLACEHOLDER_IMAGE
+  const [imgSrc, setImgSrc] = useState(source)
+
+  useEffect(() => setImgSrc(source), [source])
 
   return (
     <Image
@@ -37,8 +40,13 @@ export function ProductImage({
       height={!fill ? height : undefined}
       sizes={sizes}
       priority={priority}
+      // Public Blob images should load directly from their origin instead of
+      // relying on Next's image optimizer to fetch them server-side.
+      unoptimized={imgSrc.startsWith("https://")}
       className={cn("object-cover", className)}
-      onError={() => setImgSrc(PLACEHOLDER_IMAGE)}
+      onError={() => {
+        if (imgSrc !== PLACEHOLDER_IMAGE) setImgSrc(PLACEHOLDER_IMAGE)
+      }}
     />
   )
 }
