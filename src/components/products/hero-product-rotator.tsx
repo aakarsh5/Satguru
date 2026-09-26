@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, ArrowRight, PackageSearch } from "lucide-react"
+import { ArrowLeft, ArrowRight, PackageSearch, Timer } from "lucide-react"
 import type { Category, ProductImage } from "@/types"
 import { CategoryArtwork } from "@/components/categories/category-artwork"
 import { ProductImage as ProductPhoto } from "@/components/ui/product-image"
@@ -15,12 +15,14 @@ type HeroProduct = {
 }
 
 export function HeroProductRotator({ products, fallbackCategory }: { products: HeroProduct[]; fallbackCategory?: Category }) {
-  const [index, setIndex] = useState(0)
+  const [slide, setSlide] = useState({ index: 0, secondsLeft: 10 })
   const [paused, setPaused] = useState(false)
 
   useEffect(() => {
     if (paused || products.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    const timer = window.setInterval(() => setIndex((current) => (current + 1) % products.length), 5000)
+    const timer = window.setInterval(() => setSlide((current) => current.secondsLeft <= 1
+      ? { index: (current.index + 1) % products.length, secondsLeft: 10 }
+      : { ...current, secondsLeft: current.secondsLeft - 1 }), 1000)
     return () => window.clearInterval(timer)
   }, [paused, products.length])
 
@@ -28,8 +30,9 @@ export function HeroProductRotator({ products, fallbackCategory }: { products: H
     return fallbackCategory ? <div className="absolute inset-0"><CategoryArtwork category={fallbackCategory} className="h-full rounded-none" /><div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-8 pt-24 text-white"><p className="text-xs uppercase tracking-[0.18em] text-white/75">Explore the collection</p><p className="mt-2 text-2xl font-semibold">{fallbackCategory.name}</p></div></div> : <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-amber-50 to-stone-200 text-stone-700"><PackageSearch className="h-20 w-20 stroke-[1.1]" /><p className="mt-5 text-lg font-medium">Discover our catalogue</p></div>
   }
 
+  const index = slide.index % products.length
   const product = products[index] ?? products[0]
-  const move = (step: number) => setIndex((current) => (current + step + products.length) % products.length)
+  const move = (step: number) => setSlide((current) => ({ index: (current.index + step + products.length) % products.length, secondsLeft: 10 }))
 
   return <div
     className="absolute inset-0"
@@ -46,7 +49,10 @@ export function HeroProductRotator({ products, fallbackCategory }: { products: H
       <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/75">Explore the collection</p>
       <Link href={`/${product.slug}`} className="mt-2 inline-flex items-center gap-2 text-xl font-semibold hover:underline sm:text-2xl">{product.name}<ArrowRight className="h-5 w-5" /></Link>
       <div className="mt-4 flex items-center justify-between gap-4">
-        <span className="text-xs text-white/80">Product {index + 1} of {products.length}</span>
+        <div className="flex flex-wrap items-center gap-3 text-xs text-white/80">
+          <span>Product {index + 1} of {products.length}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 tabular-nums" aria-live="off"><Timer className="h-3.5 w-3.5" aria-hidden="true" />{slide.secondsLeft}s</span>
+        </div>
         <div className="flex gap-2">
           <button type="button" onClick={() => move(-1)} aria-label="Show previous product" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/50 bg-black/20 text-white transition-colors hover:bg-white/20"><ArrowLeft className="h-4 w-4" /></button>
           <button type="button" onClick={() => move(1)} aria-label="Show next product" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/50 bg-black/20 text-white transition-colors hover:bg-white/20"><ArrowRight className="h-4 w-4" /></button>
