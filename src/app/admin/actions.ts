@@ -139,7 +139,7 @@ export async function adjustInventoryAction(formData: FormData) {
   if (!(mode === "receive" || mode === "remove" || mode === "set")) throw new Error("Choose a valid stock adjustment")
   if (!Number.isSafeInteger(quantity) || quantity < 0 || (mode !== "set" && quantity === 0)) throw new Error("Enter a valid whole-number quantity")
   if (mode === "set" && !reason) throw new Error("Choose a reason for setting the stock count")
-  const allowedReasons = ["purchase", "return", "damage", "loss", "correction", "other"]
+  const allowedReasons = ["purchase", "return", "delivered", "damage", "loss", "correction", "other"]
   if (!allowedReasons.includes(reason)) throw new Error("Choose a valid stock adjustment reason")
   await adjustVariantInventory({ productId, variantId, mode, quantity, reason, note, changedBy: admin.email })
   revalidatePath("/admin/inventory")

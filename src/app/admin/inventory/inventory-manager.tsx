@@ -25,6 +25,7 @@ type InventoryRow = {
 const reasonLabels: Record<string, string> = {
   purchase: "Stock received",
   return: "Customer return",
+  delivered: "Stock delivered",
   damage: "Damaged stock",
   loss: "Lost stock",
   correction: "Count correction",
@@ -66,7 +67,7 @@ export function InventoryManager({ rows, movements, threshold }: { rows: Invento
                 <input type="hidden" name="productId" value={row.productId} /><input type="hidden" name="variantId" value={row.variantId} />
                 {row.needsSetup ? <input type="hidden" name="mode" value="receive" /> : <label className="grid gap-1 text-xs">Movement<select name="mode" className="h-9 rounded border bg-white px-2 text-sm"><option value="receive">Add stock</option><option value="remove">Remove stock</option><option value="set">Set exact count</option></select></label>}
                 <label className="grid gap-1 text-xs">{row.needsSetup ? "Opening stock quantity" : "Quantity"}<input name="quantity" type="number" min={row.needsSetup ? "1" : "0"} step="1" required className="h-9 rounded border bg-white px-2 text-sm" /></label>
-                <label className="grid gap-1 text-xs">Reason<select name="reason" required className="h-9 rounded border bg-white px-2 text-sm"><option value="purchase">Stock received</option><option value="return">Customer return</option><option value="damage">Damaged stock</option><option value="loss">Lost stock</option><option value="correction">Count correction</option><option value="other">Other</option></select></label>
+                <label className="grid gap-1 text-xs">Reason<select name="reason" required className="h-9 rounded border bg-white px-2 text-sm"><option value="purchase">Stock received</option><option value="return">Customer return</option><option value="delivered">Stock delivered</option><option value="damage">Damaged stock</option><option value="loss">Lost stock</option><option value="correction">Count correction</option><option value="other">Other</option></select></label>
                 <label className="grid gap-1 text-xs">Note (optional)<input name="note" maxLength={500} placeholder="Supplier, count reference…" className="h-9 rounded border bg-white px-2 text-sm" /></label>
                 <button type="submit" className="h-9 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground">Save movement</button>
               </form></details> : <Link href={`/admin/products/${row.productId}`} className="text-xs underline underline-offset-4">Enable tracking</Link>}</td>
