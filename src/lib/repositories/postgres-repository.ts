@@ -104,7 +104,22 @@ export async function adjustVariantInventory(input: {
     if (!rows[0]) throw new Error("Product not found")
     const product = rows[0].payload as Product
     const variants = product.variants ?? []
-    const index = variants.findIndex((variant) => variant.id === input.variantId)
+    let variantId = input.variantId
+    let index = variants.findIndex((variant) => variant.id === variantId)
+    if (variantId === "__new_default__") {
+      if (variants.length > 0) throw new Error("This product already has variants. Adjust one of its existing variants instead.")
+      variantId = crypto.randomUUID()
+      variants.push({
+        id: variantId,
+        productId: input.productId,
+        sku: "",
+        name: "Default",
+        inventory: { quantity: 0, trackInventory: true, allowBackorder: false },
+        options: [],
+        images: [],
+      })
+      index = 0
+    }
     if (index < 0) throw new Error("Product variant not found")
     const variant = variants[index]
     if (!variant.inventory.trackInventory) throw new Error("Enable inventory tracking for this variant before adjusting its stock")
@@ -119,8 +134,8 @@ export async function adjustVariantInventory(input: {
     const updatedAt = new Date().toISOString()
     const updatedProduct = JSON.parse(JSON.stringify({ ...product, variants: updatedVariants, updatedAt }))
     await tx`update products set payload=${tx.json(updatedProduct)},updated_at=${updatedAt} where id=${input.productId}`
-    const movements = await tx`insert into inventory_movements (product_id,variant_id,quantity_before,quantity_delta,quantity_after,reason,note,changed_by) values (${input.productId},${input.variantId},${before},${delta},${after},${input.reason},${input.note},${input.changedBy}) returning id,created_at`
-    return { before, after, delta, id: Number(movements[0].id) }
+    const movements = await tx`insert into inventory_movements (product_id,variant_id,quantity_before,quantity_delta,quantity_after,reason,note,changed_by) values (${input.productId},${variantId},${before},${delta},${after},${input.reason},${input.note},${input.changedBy}) returning id,created_at`
+    return { before, after, delta, id: Number(movements[0].id), variantId }
   })
 }
 

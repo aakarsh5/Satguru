@@ -19,6 +19,7 @@ type InventoryRow = {
   quantity: number
   trackInventory: boolean
   allowBackorder: boolean
+  needsSetup: boolean
 }
 
 const reasonLabels: Record<string, string> = {
@@ -37,7 +38,7 @@ export function InventoryManager({ rows, movements, threshold }: { rows: Invento
     const normalized = query.trim().toLowerCase()
     return rows.filter((row) => {
       const matchesSearch = !normalized || [row.productName, row.variantName, row.options, row.sku].some((value) => value.toLowerCase().includes(normalized))
-      const matchesFilter = filter === "all" || (filter === "low" && row.trackInventory && row.quantity > 0 && row.quantity <= threshold) || (filter === "out" && row.trackInventory && row.quantity === 0) || (filter === "untracked" && !row.trackInventory)
+      const matchesFilter = filter === "all" || (filter === "low" && row.trackInventory && row.quantity > 0 && row.quantity <= threshold) || (filter === "out" && row.trackInventory && row.quantity === 0) || (filter === "untracked" && (!row.trackInventory || row.needsSetup))
       return matchesSearch && matchesFilter
     })
   }, [rows, query, filter, threshold])
@@ -55,15 +56,15 @@ export function InventoryManager({ rows, movements, threshold }: { rows: Invento
         <table className="w-full min-w-[1050px] text-left text-sm">
           <thead className="bg-neutral-50 text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="px-4 py-3">Product / variant</th><th className="px-4 py-3">SKU</th><th className="px-4 py-3">Stock</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Stock movement</th></tr></thead>
           <tbody className="divide-y">
-            {filtered.map((row) => <tr key={row.variantId} className="align-top hover:bg-neutral-50/60">
-              <td className="px-4 py-3"><div className="flex items-center gap-3"><div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-neutral-100"><ProductImage src={row.imageUrl || undefined} alt={row.productName} sizes="44px" /></div><div><Link href={`/admin/products/${row.productId}`} className="font-medium hover:underline">{row.productName}</Link><p className="text-xs text-muted-foreground">{row.variantName}{row.options ? ` · ${row.options}` : ""}</p></div></div></td>
+            {filtered.map((row) => <tr key={`${row.productId}-${row.variantId}`} className="align-top hover:bg-neutral-50/60">
+              <td className="px-4 py-3"><div className="flex items-center gap-3"><div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-neutral-100"><ProductImage src={row.imageUrl || undefined} alt={row.productName} sizes="44px" /></div><div><Link href={`/admin/products/${row.productId}`} className="font-medium hover:underline">{row.productName}</Link><p className="text-xs text-muted-foreground">{row.needsSetup ? "No variant created yet" : `${row.variantName}${row.options ? ` · ${row.options}` : ""}`}</p></div></div></td>
               <td className="px-4 py-3 font-mono text-xs">{row.sku || "—"}</td>
-              <td className="px-4 py-3">{row.trackInventory ? <span className="font-semibold tabular-nums">{row.quantity.toLocaleString()} units</span> : <span className="text-muted-foreground">Not tracked</span>}{row.allowBackorder && <span className="ml-2 rounded-full bg-blue-50 px-2 py-1 text-[11px] text-blue-800">Backorders</span>}</td>
-              <td className="px-4 py-3">{!row.trackInventory ? <Badge tone="gray">Untracked</Badge> : row.quantity === 0 ? <Badge tone="red">Out of stock</Badge> : row.quantity <= threshold ? <Badge tone="amber">Low stock</Badge> : <Badge tone="green">In stock</Badge>}</td>
-              <td className="px-4 py-3">{row.trackInventory ? <details className="group"><summary className="cursor-pointer list-none rounded-md border px-3 py-2 text-center text-xs font-medium hover:bg-neutral-50">Adjust stock</summary><form action={adjustInventoryAction} className="mt-3 grid min-w-64 gap-2 rounded-lg border bg-neutral-50 p-3">
+              <td className="px-4 py-3">{row.needsSetup ? <span className="text-muted-foreground">Not set up</span> : row.trackInventory ? <span className="font-semibold tabular-nums">{row.quantity.toLocaleString()} units</span> : <span className="text-muted-foreground">Not tracked</span>}{row.allowBackorder && <span className="ml-2 rounded-full bg-blue-50 px-2 py-1 text-[11px] text-blue-800">Backorders</span>}</td>
+              <td className="px-4 py-3">{row.needsSetup ? <Badge tone="blue">Set up stock</Badge> : !row.trackInventory ? <Badge tone="gray">Untracked</Badge> : row.quantity === 0 ? <Badge tone="red">Out of stock</Badge> : row.quantity <= threshold ? <Badge tone="amber">Low stock</Badge> : <Badge tone="green">In stock</Badge>}</td>
+              <td className="px-4 py-3">{row.trackInventory || row.needsSetup ? <details className="group"><summary className="cursor-pointer list-none rounded-md border px-3 py-2 text-center text-xs font-medium hover:bg-neutral-50">{row.needsSetup ? "Set up stock" : "Adjust stock"}</summary><form action={adjustInventoryAction} className="mt-3 grid min-w-64 gap-2 rounded-lg border bg-neutral-50 p-3">
                 <input type="hidden" name="productId" value={row.productId} /><input type="hidden" name="variantId" value={row.variantId} />
-                <label className="grid gap-1 text-xs">Movement<select name="mode" className="h-9 rounded border bg-white px-2 text-sm"><option value="receive">Add stock</option><option value="remove">Remove stock</option><option value="set">Set exact count</option></select></label>
-                <label className="grid gap-1 text-xs">Quantity<input name="quantity" type="number" min="0" step="1" required className="h-9 rounded border bg-white px-2 text-sm" /></label>
+                {row.needsSetup ? <input type="hidden" name="mode" value="receive" /> : <label className="grid gap-1 text-xs">Movement<select name="mode" className="h-9 rounded border bg-white px-2 text-sm"><option value="receive">Add stock</option><option value="remove">Remove stock</option><option value="set">Set exact count</option></select></label>}
+                <label className="grid gap-1 text-xs">{row.needsSetup ? "Opening stock quantity" : "Quantity"}<input name="quantity" type="number" min={row.needsSetup ? "1" : "0"} step="1" required className="h-9 rounded border bg-white px-2 text-sm" /></label>
                 <label className="grid gap-1 text-xs">Reason<select name="reason" required className="h-9 rounded border bg-white px-2 text-sm"><option value="purchase">Stock received</option><option value="return">Customer return</option><option value="damage">Damaged stock</option><option value="loss">Lost stock</option><option value="correction">Count correction</option><option value="other">Other</option></select></label>
                 <label className="grid gap-1 text-xs">Note (optional)<input name="note" maxLength={500} placeholder="Supplier, count reference…" className="h-9 rounded border bg-white px-2 text-sm" /></label>
                 <button type="submit" className="h-9 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground">Save movement</button>
@@ -86,7 +87,7 @@ export function InventoryManager({ rows, movements, threshold }: { rows: Invento
   </>
 }
 
-function Badge({ children, tone }: { children: React.ReactNode; tone: "gray" | "red" | "amber" | "green" }) {
-  const styles = { gray: "bg-neutral-100 text-neutral-700", red: "bg-red-100 text-red-800", amber: "bg-amber-100 text-amber-900", green: "bg-green-100 text-green-800" }
+function Badge({ children, tone }: { children: React.ReactNode; tone: "gray" | "red" | "amber" | "green" | "blue" }) {
+  const styles = { gray: "bg-neutral-100 text-neutral-700", red: "bg-red-100 text-red-800", amber: "bg-amber-100 text-amber-900", green: "bg-green-100 text-green-800", blue: "bg-blue-100 text-blue-800" }
   return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${styles[tone]}`}>{children}</span>
 }
