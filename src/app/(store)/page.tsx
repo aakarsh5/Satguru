@@ -6,7 +6,7 @@ import { siteConfig } from "@/lib/config"
 import { ProductGrid } from "@/components/products/product-grid"
 import { CategoryArtwork } from "@/components/categories/category-artwork"
 import { NewsletterForm } from "@/components/layout/newsletter-form"
-import { ProductImage } from "@/components/ui/product-image"
+import { HeroProductRotator } from "@/components/products/hero-product-rotator"
 import { productRepository, categoryRepository } from "@/lib/repositories"
 
 export const metadata: Metadata = {
@@ -23,15 +23,21 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [categories, featuredProducts, latestProducts] = await Promise.all([
+  const pageSize = 100
+  const [categories, featuredProducts, firstProductPage] = await Promise.all([
     categoryRepository.list(),
     productRepository.getFeatured(4),
-    productRepository.list({}, { field: "createdAt", order: "desc" }, { page: 1, limit: 8 }),
+    productRepository.list({}, { field: "createdAt", order: "desc" }, { page: 1, limit: pageSize }),
   ])
+  const remainingProductPages = await Promise.all(Array.from(
+    { length: Math.max(0, firstProductPage.pagination.totalPages - 1) },
+    (_, index) => productRepository.list({}, { field: "createdAt", order: "desc" }, { page: index + 2, limit: pageSize })
+  ))
+  const allActiveProducts = [...firstProductPage.items, ...remainingProductPages.flatMap((page) => page.items)]
   const featuredIds = new Set(featuredProducts.map((product) => product.id))
-  const displayProducts = [...featuredProducts, ...latestProducts.items.filter((product) => !featuredIds.has(product.id))].slice(0, 4)
+  const displayProducts = [...featuredProducts, ...allActiveProducts.filter((product) => !featuredIds.has(product.id))].slice(0, 4)
   const topCategories = categories.filter((category) => !category.parentId).sort((a, b) => a.order - b.order || a.name.localeCompare(b.name)).slice(0, 6)
-  const heroProduct = displayProducts.find((product) => product.images[0]?.url)
+  const rotatingProducts = allActiveProducts.map((product) => ({ id: product.id, name: product.name, slug: product.slug, image: product.images[0] }))
 
   return (
     <div className="flex flex-col">
@@ -54,10 +60,7 @@ export default async function HomePage() {
             <div className="relative aspect-[1.08]">
               <div aria-hidden="true" className="absolute inset-[8%] rounded-[2.5rem] bg-[#e5dfd1] rotate-3" />
               <div className="absolute inset-[5%] overflow-hidden rounded-[2.25rem] border border-white/70 bg-white shadow-xl">
-                {heroProduct ? <>
-                  <ProductImage src={heroProduct.images[0]?.url} alt={heroProduct.images[0]?.alt ?? heroProduct.name} sizes="(max-width: 768px) 90vw, 44vw" priority className="transition-transform duration-700 hover:scale-[1.03]" />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent p-6 pt-24 text-white sm:p-8 sm:pt-28"><p className="text-xs font-medium uppercase tracking-[0.18em] text-white/75">Explore the collection</p><p className="mt-2 text-xl font-semibold sm:text-2xl">{heroProduct.name}</p><Link href={`/${heroProduct.slug}`} className="mt-3 inline-flex items-center gap-2 text-sm font-medium hover:underline">View product<ArrowRight className="h-4 w-4" /></Link></div>
-                </> : topCategories[0] ? <div className="absolute inset-0"><CategoryArtwork category={topCategories[0]} className="h-full rounded-none" /><div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-8 pt-24 text-white"><p className="text-xs uppercase tracking-[0.18em] text-white/75">Explore the collection</p><p className="mt-2 text-2xl font-semibold">{topCategories[0].name}</p></div></div> : <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-amber-50 to-stone-200 text-stone-700"><PackageSearch className="h-20 w-20 stroke-[1.1]" /><p className="mt-5 text-lg font-medium">Discover our catalogue</p></div>}
+                <HeroProductRotator products={rotatingProducts} fallbackCategory={topCategories[0]} />
               </div>
               <div className="absolute -left-1 bottom-[12%] flex items-center gap-3 rounded-2xl border border-stone-200/80 bg-white p-3 shadow-lg sm:-left-5 sm:p-4"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800"><BadgeCheck className="h-5 w-5" /></div><div><p className="text-sm font-semibold text-stone-900">Helpful guidance</p><p className="text-xs text-stone-500">Questions? Talk to our team</p></div></div>
               <Link href="/shop" className="absolute -right-1 top-[12%] inline-flex items-center gap-2 rounded-full border border-stone-200/80 bg-white px-4 py-3 text-sm font-semibold text-stone-800 shadow-lg transition-transform hover:scale-105 sm:-right-4"><PackageSearch className="h-4 w-4 text-emerald-700" />Browse catalogue<ArrowRight className="h-4 w-4" /></Link>
