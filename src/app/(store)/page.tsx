@@ -1,11 +1,12 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, BadgeCheck, MessageCircle, PackageSearch } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { siteConfig } from "@/lib/config"
 import { ProductGrid } from "@/components/products/product-grid"
 import { CategoryArtwork } from "@/components/categories/category-artwork"
 import { NewsletterForm } from "@/components/layout/newsletter-form"
+import { ProductImage } from "@/components/ui/product-image"
 import { productRepository, categoryRepository } from "@/lib/repositories"
 
 export const metadata: Metadata = {
@@ -22,34 +23,54 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const categories = await categoryRepository.list()
-  const featuredProducts = await productRepository.getFeatured(4)
-
+  const [categories, featuredProducts, latestProducts] = await Promise.all([
+    categoryRepository.list(),
+    productRepository.getFeatured(4),
+    productRepository.list({}, { field: "createdAt", order: "desc" }, { page: 1, limit: 8 }),
+  ])
+  const featuredIds = new Set(featuredProducts.map((product) => product.id))
+  const displayProducts = [...featuredProducts, ...latestProducts.items.filter((product) => !featuredIds.has(product.id))].slice(0, 4)
+  const topCategories = categories.filter((category) => !category.parentId).sort((a, b) => a.order - b.order || a.name.localeCompare(b.name)).slice(0, 6)
+  const heroProduct = displayProducts.find((product) => product.images[0]?.url)
 
   return (
     <div className="flex flex-col">
-      {/* Hero */}
-      <section className="relative flex h-[650px] items-center justify-center bg-neutral-50">
-        <div className="mx-auto max-w-3xl px-4 text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            {siteConfig.name}
-          </h1>
-          <p className="mt-6 text-lg text-muted-foreground">
-            {siteConfig.description}
-          </p>
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" asChild>
-              <Link href="/shop">
-                Browse Products
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/contact">
-                Contact Us
-              </Link>
-            </Button>
+      <section className="relative isolate overflow-hidden bg-[#f5f3ed]">
+        <div aria-hidden="true" className="absolute -right-48 -top-48 h-[34rem] w-[34rem] rounded-full border border-stone-300/70" />
+        <div aria-hidden="true" className="absolute -right-28 -top-28 h-[25rem] w-[25rem] rounded-full border border-stone-300/60" />
+        <div className="relative mx-auto grid min-h-[570px] max-w-[1440px] items-center gap-12 px-4 py-14 sm:px-6 md:grid-cols-2 md:py-20 lg:px-8">
+          <div className="max-w-xl">
+            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-stone-700"><span className="h-2 w-2 rounded-full bg-emerald-600" />Satguru Traders <span className="text-stone-400">/</span> Product catalogue</p>
+            <h1 className="text-4xl font-semibold leading-[1.08] tracking-tight text-stone-950 sm:text-5xl lg:text-6xl">Find the right products for your needs.</h1>
+            <p className="mt-6 max-w-lg text-base leading-7 text-stone-600 sm:text-lg">Explore our collection, compare available options, and talk with our team when you need help choosing.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button size="lg" asChild><Link href="/shop">Browse products<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+              <Button size="lg" variant="outline" className="border-stone-300 bg-white/60" asChild><Link href="/contact">Contact our team</Link></Button>
+            </div>
+            <p className="mt-5 text-sm text-stone-500">Need product details or availability? We’re happy to help.</p>
           </div>
+
+          <div className="relative mx-auto w-full max-w-[560px]">
+            <div className="relative aspect-[1.08]">
+              <div aria-hidden="true" className="absolute inset-[8%] rounded-[2.5rem] bg-[#e5dfd1] rotate-3" />
+              <div className="absolute inset-[5%] overflow-hidden rounded-[2.25rem] border border-white/70 bg-white shadow-xl">
+                {heroProduct ? <>
+                  <ProductImage src={heroProduct.images[0]?.url} alt={heroProduct.images[0]?.alt ?? heroProduct.name} sizes="(max-width: 768px) 90vw, 44vw" priority className="transition-transform duration-700 hover:scale-[1.03]" />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent p-6 pt-24 text-white sm:p-8 sm:pt-28"><p className="text-xs font-medium uppercase tracking-[0.18em] text-white/75">Explore the collection</p><p className="mt-2 text-xl font-semibold sm:text-2xl">{heroProduct.name}</p><Link href={`/${heroProduct.slug}`} className="mt-3 inline-flex items-center gap-2 text-sm font-medium hover:underline">View product<ArrowRight className="h-4 w-4" /></Link></div>
+                </> : topCategories[0] ? <div className="absolute inset-0"><CategoryArtwork category={topCategories[0]} className="h-full rounded-none" /><div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-8 pt-24 text-white"><p className="text-xs uppercase tracking-[0.18em] text-white/75">Explore the collection</p><p className="mt-2 text-2xl font-semibold">{topCategories[0].name}</p></div></div> : <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-amber-50 to-stone-200 text-stone-700"><PackageSearch className="h-20 w-20 stroke-[1.1]" /><p className="mt-5 text-lg font-medium">Discover our catalogue</p></div>}
+              </div>
+              <div className="absolute -left-1 bottom-[12%] flex items-center gap-3 rounded-2xl border border-stone-200/80 bg-white p-3 shadow-lg sm:-left-5 sm:p-4"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800"><BadgeCheck className="h-5 w-5" /></div><div><p className="text-sm font-semibold text-stone-900">Helpful guidance</p><p className="text-xs text-stone-500">Questions? Talk to our team</p></div></div>
+              <Link href="/shop" className="absolute -right-1 top-[12%] inline-flex items-center gap-2 rounded-full border border-stone-200/80 bg-white px-4 py-3 text-sm font-semibold text-stone-800 shadow-lg transition-transform hover:scale-105 sm:-right-4"><PackageSearch className="h-4 w-4 text-emerald-700" />Browse catalogue<ArrowRight className="h-4 w-4" /></Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b bg-white">
+        <div className="mx-auto grid max-w-[1440px] gap-4 px-4 py-5 sm:grid-cols-3 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 sm:justify-center"><PackageSearch className="h-5 w-5 text-emerald-700" /><div><p className="text-sm font-semibold">A clear product catalogue</p><p className="text-xs text-muted-foreground">Browse details and available options</p></div></div>
+          <div className="flex items-center gap-3 sm:justify-center"><BadgeCheck className="h-5 w-5 text-emerald-700" /><div><p className="text-sm font-semibold">Compare product options</p><p className="text-xs text-muted-foreground">Find the details that fit your needs</p></div></div>
+          <div className="flex items-center gap-3 sm:justify-center"><MessageCircle className="h-5 w-5 text-emerald-700" /><div><p className="text-sm font-semibold">Direct help from our team</p><p className="text-xs text-muted-foreground">Ask about products and availability</p></div></div>
         </div>
       </section>
 
@@ -66,8 +87,8 @@ export default async function HomePage() {
             View all
           </Link>
         </div>
-        <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {categories.map((category) => (
+        {topCategories.length > 0 ? <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+          {topCategories.map((category) => (
             <Link key={category.id} href={`/${category.slug}`} className="group">
               <CategoryArtwork category={category} className="aspect-square transition-transform duration-300 group-hover:scale-[1.02]" />
               <div className="mt-3 text-center">
@@ -77,14 +98,14 @@ export default async function HomePage() {
               </div>
             </Link>
           ))}
-        </div>
+        </div> : <p className="mt-6 rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">Our category collection is being prepared. Browse all products in the meantime.</p>}
       </section>
 
       {/* Featured Products */}
       <section className="mx-auto w-full max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold tracking-tight">
-            Featured Products
+            {featuredProducts.length > 0 ? "Featured products" : "Explore our products"}
           </h2>
           <Link
             href="/shop"
@@ -93,9 +114,7 @@ export default async function HomePage() {
             View all
           </Link>
         </div>
-        <div className="mt-8">
-          <ProductGrid products={featuredProducts} />
-        </div>
+        {displayProducts.length > 0 ? <div className="mt-8"><ProductGrid products={displayProducts} /></div> : <div className="mt-8 rounded-2xl border border-dashed bg-neutral-50 px-6 py-12 text-center"><PackageSearch className="mx-auto h-10 w-10 text-muted-foreground" /><p className="mt-4 font-medium">New products are on the way.</p><p className="mt-1 text-sm text-muted-foreground">Contact our team for help finding what you need.</p><Button className="mt-5" asChild><Link href="/contact">Ask us<ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div>}
       </section>
 
       {/* Catalog CTA */}
