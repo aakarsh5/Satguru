@@ -77,6 +77,8 @@ export async function saveProductAction(formData: FormData) {
     categoryIds,
     featured: formData.get("featured") === "on",
     images: JSON.parse(String(formData.get("images") ?? "[]")),
+    variants: (JSON.parse(String(formData.get("variants") ?? JSON.stringify(existing.variants ?? []))) as Product["variants"])
+      .map((variant) => ({ ...variant, productId })),
     slug: productSlug,
   }
   if (routeId !== "new" && routeId !== raw.id) throw new Error("Product id does not match the route")
