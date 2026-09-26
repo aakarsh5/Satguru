@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import { ProductImage } from "@/components/ui/product-image"
 import type { InventoryMovement } from "@/lib/repositories/postgres-repository"
-import { adjustInventoryAction } from "../actions"
+import { adjustInventoryAction, generateMissingSkusAction } from "../actions"
 
 type InventoryRow = {
   productId: string
@@ -48,6 +48,7 @@ export function InventoryManager({ rows, movements, threshold }: { rows: Invento
       <div className="flex flex-wrap items-end justify-between gap-3 border-b p-4">
         <div><h2 className="font-semibold">Stock by variant</h2><p className="mt-1 text-xs text-muted-foreground">Low stock means {threshold} units or fewer. Use Add or Remove to record a movement; Set count is for physical stock corrections.</p></div>
         <div className="flex flex-wrap gap-2">
+          <form action={generateMissingSkusAction}><button type="submit" className="h-10 rounded-md border px-3 text-sm font-medium hover:bg-neutral-50">Generate missing SKUs</button></form>
           <label className="sr-only" htmlFor="inventory-search">Search inventory</label><input id="inventory-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search product, SKU…" className="h-10 min-w-52 rounded-md border px-3 text-sm" />
           <label className="sr-only" htmlFor="inventory-filter">Filter inventory</label><select id="inventory-filter" value={filter} onChange={(event) => setFilter(event.target.value)} className="h-10 rounded-md border px-3 text-sm"><option value="all">All stock</option><option value="low">Low stock</option><option value="out">Out of stock</option><option value="untracked">Untracked</option></select>
         </div>

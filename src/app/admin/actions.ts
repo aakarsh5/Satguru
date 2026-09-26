@@ -8,7 +8,8 @@ import { productAdminRepository, categoryAdminRepository } from "@/lib/repositor
 import { deleteCatalogImage, reorderCatalogImages, uploadCatalogImage } from "@/lib/blob"
 import type { Category, Product } from "@/types"
 import { slugify } from "@/lib/utils"
-import { adjustVariantInventory } from "@/lib/repositories/postgres-repository"
+import { createHash } from "node:crypto"
+import { adjustVariantInventory, backfillMissingVariantSkus } from "@/lib/repositories/postgres-repository"
 
 const productSchema = z.object({
   id: z.string().min(1),
@@ -68,6 +69,20 @@ export async function saveProductAction(formData: FormData) {
   let productSlug = baseSlug
   let suffix = 2
   while (usedSlugs.has(productSlug)) productSlug = `${baseSlug}-${suffix++}`
+  const variants = JSON.parse(String(formData.get("variants") ?? JSON.stringify(existing.variants ?? []))) as Product["variants"]
+  const usedSkus = new Set(products.flatMap((item) => item.variants ?? []).map((variant) => variant.sku.trim().toUpperCase()).filter(Boolean))
+  const savedVariants = variants.map((variant, index) => {
+    let sku = variant.sku.trim()
+    if (!sku) {
+      const productCode = createHash("sha256").update(productId).digest("hex").slice(0, 10).toUpperCase()
+      const baseSku = `SG-${productCode}-${String(index + 1).padStart(3, "0")}`
+      sku = baseSku
+      let skuSuffix = 2
+      while (usedSkus.has(sku.toUpperCase())) sku = `${baseSku}-${skuSuffix++}`
+    }
+    usedSkus.add(sku.toUpperCase())
+    return { ...variant, sku, productId }
+  })
   const raw = {
     ...existing,
     id: productId,
@@ -78,8 +93,7 @@ export async function saveProductAction(formData: FormData) {
     categoryIds,
     featured: formData.get("featured") === "on",
     images: JSON.parse(String(formData.get("images") ?? "[]")),
-    variants: (JSON.parse(String(formData.get("variants") ?? JSON.stringify(existing.variants ?? []))) as Product["variants"])
-      .map((variant) => ({ ...variant, productId })),
+    variants: savedVariants,
     slug: productSlug,
   }
   if (routeId !== "new" && routeId !== raw.id) throw new Error("Product id does not match the route")
@@ -132,6 +146,14 @@ export async function adjustInventoryAction(formData: FormData) {
   revalidatePath("/shop")
   revalidatePath("/")
   redirect("/admin/inventory?updated=1")
+}
+
+export async function generateMissingSkusAction() {
+  await requireAdmin()
+  const count = await backfillMissingVariantSkus()
+  revalidatePath("/admin/inventory")
+  revalidatePath("/admin/products")
+  redirect(`/admin/inventory?skusUpdated=${count}`)
 }
 
 export async function bulkDeleteProductsAction(formData: FormData) {

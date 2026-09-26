@@ -1,5 +1,6 @@
 import type { Category, CategoryAdminRepository, CategoryRepository, PaginatedResult, PaginationParams, Product, ProductAdminRepository, ProductFilters, ProductRepository, SortOption } from "@/types"
 import { requireDatabase } from "@/lib/db"
+import { createHash } from "node:crypto"
 
 const pageResult = <T>(items: T[], total: number, pagination?: PaginationParams): PaginatedResult<T> => {
   const page = Math.max(1, pagination?.page ?? 1)
@@ -112,7 +113,7 @@ export async function adjustVariantInventory(input: {
       variants.push({
         id: variantId,
         productId: input.productId,
-        sku: "",
+        sku: `SG-${variantId.replaceAll("-", "").slice(0, 12).toUpperCase()}`,
         name: "Default",
         inventory: { quantity: 0, trackInventory: true, allowBackorder: false },
         options: [],
@@ -149,6 +150,36 @@ export async function listInventoryMovements(limit = 50): Promise<InventoryMovem
       quantityBefore: Number(value.quantity_before), quantityDelta: Number(value.quantity_delta), quantityAfter: Number(value.quantity_after),
       reason: String(value.reason), note: String(value.note ?? ""), changedBy: String(value.changed_by), createdAt: new Date(String(value.created_at)).toISOString(),
     }
+  })
+}
+
+export async function backfillMissingVariantSkus() {
+  const database = requireDatabase()
+  return database.begin(async (tx) => {
+    const rows = await tx`select id,payload from products order by id for update`
+    const products = rows.map((row) => ({ id: String(row.id), product: row.payload as Product }))
+    const usedSkus = new Set(products.flatMap(({ product }) => (product.variants ?? []).map((variant) => variant.sku?.trim().toUpperCase()).filter(Boolean)))
+    let updatedCount = 0
+    for (const { id, product } of products) {
+      let changed = false
+      const variants = (product.variants ?? []).map((variant, index) => {
+        if (variant.sku?.trim()) return variant
+        const productCode = createHash("sha256").update(id).digest("hex").slice(0, 10).toUpperCase()
+        const baseSku = `SG-${productCode}-${String(index + 1).padStart(3, "0")}`
+        let sku = baseSku
+        let suffix = 2
+        while (usedSkus.has(sku.toUpperCase())) sku = `${baseSku}-${suffix++}`
+        usedSkus.add(sku.toUpperCase())
+        changed = true
+        updatedCount += 1
+        return { ...variant, sku }
+      })
+      if (changed) {
+        const updated = JSON.parse(JSON.stringify({ ...product, variants, updatedAt: new Date().toISOString() }))
+        await tx`update products set payload=${tx.json(updated)},updated_at=now() where id=${id}`
+      }
+    }
+    return updatedCount
   })
 }
 

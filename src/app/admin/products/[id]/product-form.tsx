@@ -24,7 +24,7 @@ export function ProductForm({ product, categories }: { product: Product; categor
       id,
       productId: product.id,
       name: `Variant ${current.length + 1}`,
-      sku: "",
+      sku: `SG-${id.replaceAll("-", "").slice(0, 12).toUpperCase()}`,
       inventory: { quantity: 0, trackInventory: true, allowBackorder: false },
       options: [],
       images: [],

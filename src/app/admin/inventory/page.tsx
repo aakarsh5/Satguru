@@ -5,9 +5,9 @@ import { InventoryManager } from "./inventory-manager"
 
 const LOW_STOCK_THRESHOLD = 5
 
-export default async function AdminInventoryPage({ searchParams }: { searchParams: Promise<{ updated?: string }> }) {
+export default async function AdminInventoryPage({ searchParams }: { searchParams: Promise<{ updated?: string; skusUpdated?: string }> }) {
   await requireAdmin()
-  const [{ updated }, products, movements] = await Promise.all([
+  const [{ updated, skusUpdated }, products, movements] = await Promise.all([
     searchParams,
     productAdminRepository.listAll(),
     listInventoryMovements(40),
@@ -53,6 +53,7 @@ export default async function AdminInventoryPage({ searchParams }: { searchParam
   return <main>
     <div className="mb-6"><p className="text-sm text-muted-foreground">Stock control</p><h1 className="mt-1 text-2xl font-semibold">Inventory</h1><p className="mt-1 text-sm text-muted-foreground">Review stock by variant, record incoming and outgoing stock, and spot replenishment needs.</p></div>
     {updated && <p role="status" className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">Inventory adjustment saved.</p>}
+    {skusUpdated !== undefined && <p role="status" className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">Generated SKUs for {Number(skusUpdated).toLocaleString()} existing variant{skusUpdated === "1" ? "" : "s"}.</p>}
     <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Metric title="Products listed" value={products.length} detail="Every product in the catalog" />
       <Metric title="Tracked variants" value={metrics.trackedVariants} detail="Variants with stock tracking enabled" />
