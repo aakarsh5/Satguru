@@ -21,7 +21,7 @@ const faqs = [
   {
     question: "Can I request more product information?",
     answer:
-      "Yes. Use the enquiry form on the product page or our contact page and include the product name so our team can respond with the most relevant information.",
+      "Yes. Call us from the product page and mention the product name, or use the email option on our contact page.",
   },
   {
     question: "How do I find products in a category?",
@@ -41,7 +41,7 @@ const faqs = [
   {
     question: "How do I contact customer support?",
     answer:
-      "You can reach us via our contact page, email us at support@store.com, or call (555) 123-4567. Our support team is available Monday through Friday, 9am to 5pm EST.",
+      "For the quickest response, call Satguru Traders at 9854023952. You can also email lohaniaakarsh2017@gmail.com from our contact page.",
   },
 ]
 

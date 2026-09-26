@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Mail } from "lucide-react"
+import { Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -17,6 +17,7 @@ import { ProductGallery } from "@/components/products/product-gallery"
 import { VariantSelector } from "@/components/products/variant-selector"
 import { ProductGrid } from "@/components/products/product-grid"
 import { breadcrumbJsonLd } from "@/lib/structured-data"
+import { siteConfig } from "@/lib/config"
 import type { Product, Brand, Category } from "@/types"
 
 interface ProductDetailViewProps {
@@ -121,15 +122,15 @@ export function ProductDetailView({
           )}
 
           <Button asChild size="lg" className="mt-6 w-full sm:w-fit">
-            <Link href={`/contact?product=${encodeURIComponent(product.name)}`}>
-              <Mail className="mr-2 h-4 w-4" />
-              Enquire About This Product
-            </Link>
+            <a href={`tel:${siteConfig.contact.phone}`} aria-label={`Call ${siteConfig.contact.phone} to ask about ${product.name}`}>
+              <Phone className="mr-2 h-4 w-4" />
+              Call to enquire: {siteConfig.contact.phone}
+            </a>
           </Button>
 
           <Separator className="my-6" />
           <p className="text-sm text-muted-foreground">
-            Contact us for availability, specifications, and product guidance.
+            Call us and mention this product for availability, specifications, and product guidance.
           </p>
         </div>
       </div>

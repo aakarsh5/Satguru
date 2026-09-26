@@ -46,41 +46,36 @@ export default function ContactPage() {
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
       <PageHeader
         title="Contact Satguru Traders"
-        description="Have a question about a product? Contact our team and we’ll be happy to help."
+        description="Call us for the quickest help with product questions, availability, and specifications."
       />
 
       <div className="mt-12 grid gap-8 lg:grid-cols-3">
         {/* Contact info cards */}
         <div className="space-y-4 lg:col-span-1">
-          <Card>
+          <Card className="border-emerald-200 bg-emerald-50/70 shadow-sm">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4" />
-                Email
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Phone className="h-5 w-5 text-emerald-800" />
+                Call us — quickest response
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <a
-                href={`mailto:${siteConfig.contact.email}`}
-                className="text-sm text-muted-foreground hover:text-foreground hover:underline"
-              >
-                {siteConfig.contact.email}
+              <a href={`tel:${siteConfig.contact.phone}`} className="text-2xl font-semibold tracking-tight text-stone-900 hover:underline">
+                {siteConfig.contact.phone}
               </a>
+              <p className="mt-2 text-sm text-muted-foreground">Call about products, options, or availability.</p>
+              <Button asChild className="mt-5 w-full">
+                <a href={`tel:${siteConfig.contact.phone}`}><Phone className="mr-2 h-4 w-4" />Call Satguru Traders</a>
+              </Button>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-sm">
-              <Phone className="h-4 w-4" />
-                Call us
-              </CardTitle>
+              <CardTitle className="flex items-center gap-2 text-sm"><Mail className="h-4 w-4" />Email us</CardTitle>
             </CardHeader>
             <CardContent>
-              <a
-                href={`tel:${siteConfig.contact.phone}`}
-                className="text-sm text-muted-foreground hover:text-foreground hover:underline"
-              >
-                {siteConfig.contact.phone}
+              <a href={`mailto:${siteConfig.contact.email}`} className="break-all text-sm text-muted-foreground hover:text-foreground hover:underline">
+                {siteConfig.contact.email}
               </a>
             </CardContent>
           </Card>
@@ -89,6 +84,8 @@ export default function ContactPage() {
         {/* Contact form */}
         <Card className="lg:col-span-2">
           <CardContent className="pt-6">
+            <h2 className="mb-1 text-lg font-semibold">Prefer to write?</h2>
+            <p className="mb-6 text-sm text-muted-foreground">Send an email instead and your email app will open with your message.</p>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
@@ -143,7 +140,7 @@ export default function ContactPage() {
                 />
               </div>
               <Button type="submit" className="w-full sm:w-auto">
-                Open email app
+                Send by email
               </Button>
             </form>
           </CardContent>

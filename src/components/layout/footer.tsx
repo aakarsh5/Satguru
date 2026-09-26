@@ -135,8 +135,8 @@ export function Footer() {
             &copy; {siteConfig.copyrightYear} {siteConfig.name}. All rights reserved.
           </p>
           <div className="flex flex-col gap-2 text-sm sm:items-end">
+            <a href={`tel:${siteConfig.contact.phone}`} className="font-medium text-foreground hover:underline">Call us: {siteConfig.contact.phone}</a>
             <a href={`mailto:${siteConfig.contact.email}`} className="text-muted-foreground hover:text-foreground hover:underline">{siteConfig.contact.email}</a>
-            <a href={`tel:${siteConfig.contact.phone}`} className="text-muted-foreground hover:text-foreground hover:underline">{siteConfig.contact.phone}</a>
           </div>
         </div>
       </div>
