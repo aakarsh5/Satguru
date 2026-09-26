@@ -8,7 +8,7 @@ export default async function AdminProductEditorPage({ params }: { params: Promi
   await requireAdmin()
   const { id } = await params
   const categories = await categoryAdminRepository.list()
-  const product: Product | null = id === "new" ? { id: crypto.randomUUID(), name: "", slug: "", description: "", body: "", status: "draft", brandId: "", categoryIds: [], tags: [], images: [], variants: [], featured: false, createdAt: "", updatedAt: "" } : await productAdminRepository.getById(id)
+  const product: Product | null = id === "new" ? { id: crypto.randomUUID(), name: "", slug: "", description: "", body: "", status: "active", brandId: "", categoryIds: [], tags: [], images: [], variants: [], featured: false, createdAt: "", updatedAt: "" } : await productAdminRepository.getById(id)
   if (!product) notFound()
   return <main><h1 className="text-2xl font-semibold">{id === "new" ? "New product" : "Edit product"}</h1><ProductForm product={product} categories={categories} /></main>
 }

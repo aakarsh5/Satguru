@@ -42,7 +42,25 @@ async function productQuery(filters?: ProductFilters, sort?: SortOption, paginat
   if (!singleId) conditions.push(database`p.status='active'`)
   if (featured) conditions.push(database`p.featured=true`)
   if (filters?.category) conditions.push(database`exists (select 1 from product_categories pc join categories c on c.id=pc.category_id where pc.product_id=p.id and (c.id=${filters.category} or c.slug=${filters.category}))`)
-  if (filters?.search) conditions.push(database`(p.name ilike ${"%" + filters.search + "%"} or p.description ilike ${"%" + filters.search + "%"} or p.tags::text ilike ${"%" + filters.search + "%"})`)
+  if (filters?.search?.trim()) {
+    const term = `%${filters.search.trim()}%`
+    conditions.push(database`(
+      p.name ilike ${term}
+      or coalesce(p.description,'') ilike ${term}
+      or coalesce(p.body,'') ilike ${term}
+      or p.tags::text ilike ${term}
+      or exists (
+        select 1 from jsonb_array_elements(coalesce(p.payload->'variants','[]'::jsonb)) variant
+        where variant->>'name' ilike ${term}
+          or coalesce(variant->>'sku','') ilike ${term}
+          or coalesce(variant->'options','[]'::jsonb)::text ilike ${term}
+      )
+      or exists (
+        select 1 from product_categories pc join categories c on c.id=pc.category_id
+        where pc.product_id=p.id and (c.name ilike ${term} or c.slug ilike ${term})
+      )
+    )`)
+  }
   if (filters?.inStock) conditions.push(database`jsonb_path_exists(p.payload, '$.variants[*] ? (@.inventory.quantity > 0 || @.inventory.allowBackorder == true)')`)
   if (filters?.tags?.length) for (const tag of filters.tags) conditions.push(database`p.tags @> ${database.json([tag])}::jsonb`)
   const where = conditions.slice(1).reduce((query, condition) => database`${query} and ${condition}`, conditions[0])

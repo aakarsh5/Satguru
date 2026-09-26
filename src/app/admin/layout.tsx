@@ -7,10 +7,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="mx-auto min-h-screen max-w-6xl px-4 py-8">
       <header className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b pb-4">
         <Link href="/admin" className="text-xl font-semibold">Catalog admin</Link>
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/admin/products">Products</Link>
-          <Link href="/admin/inventory">Inventory</Link>
-          <Link href="/admin/categories">Categories</Link>
+        <nav className="flex items-center gap-1 text-sm">
+          <Link href="/admin/products" className="rounded-md px-3 py-2 transition-all duration-150 hover:-translate-y-px hover:bg-muted hover:shadow-sm active:translate-y-0">Products</Link>
+          <Link href="/admin/inventory" className="rounded-md px-3 py-2 transition-all duration-150 hover:-translate-y-px hover:bg-muted hover:shadow-sm active:translate-y-0">Inventory</Link>
+          <Link href="/admin/categories" className="rounded-md px-3 py-2 transition-all duration-150 hover:-translate-y-px hover:bg-muted hover:shadow-sm active:translate-y-0">Categories</Link>
           <form action={logoutAction}><Button type="submit" variant="outline" size="sm">Sign out</Button></form>
         </nav>
       </header>
