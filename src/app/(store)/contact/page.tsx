@@ -7,12 +7,12 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageHeader } from "@/components/ui/page-header"
-import { Mail, Globe, GitFork } from "lucide-react"
+import { Mail, Phone } from "lucide-react"
 import { toast } from "sonner"
 import { contactFormSchema } from "@/lib/validators"
+import { siteConfig } from "@/lib/config"
 
 export default function ContactPage() {
-  const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -35,20 +35,18 @@ export default function ContactPage() {
       return
     }
 
-    setLoading(true)
-    // In production, send to support@epicdesignlabs.com via API route or form service
-    setTimeout(() => {
-      toast.success("Message sent! We'll get back to you soon.")
-      setForm({ name: "", email: "", subject: "", message: "" })
-      setLoading(false)
-    }, 500)
+    const mailto = new URL(`mailto:${siteConfig.contact.email}`)
+    mailto.searchParams.set("subject", form.subject)
+    mailto.searchParams.set("body", `Name: ${form.name}\nReply to: ${form.email}\n\n${form.message}`)
+    window.location.href = mailto.toString()
+    toast.success("Your email app is opening with your message.")
   }
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
       <PageHeader
-        title="Contact Us"
-        description="Have a question about the starter template, need help with customization, or want to work with our team? We'd love to hear from you."
+        title="Contact Satguru Traders"
+        description="Have a question about a product? Contact our team and we’ll be happy to help."
       />
 
       <div className="mt-12 grid gap-8 lg:grid-cols-3">
@@ -63,46 +61,26 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent>
               <a
-                href="mailto:support@epicdesignlabs.com"
+                href={`mailto:${siteConfig.contact.email}`}
                 className="text-sm text-muted-foreground hover:text-foreground hover:underline"
               >
-                support@epicdesignlabs.com
+                {siteConfig.contact.email}
               </a>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
-                <Globe className="h-4 w-4" />
-                Website
+              <Phone className="h-4 w-4" />
+                Call us
               </CardTitle>
             </CardHeader>
             <CardContent>
               <a
-                href="https://epicdesignlabs.com"
-                target="_blank"
-                rel="noopener"
+                href={`tel:${siteConfig.contact.phone}`}
                 className="text-sm text-muted-foreground hover:text-foreground hover:underline"
               >
-                epicdesignlabs.com
-              </a>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <GitFork className="h-4 w-4" />
-                GitHub
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <a
-                href="https://github.com/Epic-Design-Labs/nextjs-ecommerce-starter"
-                target="_blank"
-                rel="noopener"
-                className="text-sm text-muted-foreground hover:text-foreground hover:underline"
-              >
-                View on GitHub
+                {siteConfig.contact.phone}
               </a>
             </CardContent>
           </Card>
@@ -164,8 +142,8 @@ export default function ContactPage() {
                   aria-required="true"
                 />
               </div>
-              <Button type="submit" className="w-full sm:w-auto" disabled={loading}>
-                {loading ? "Sending..." : "Send Message"}
+              <Button type="submit" className="w-full sm:w-auto">
+                Open email app
               </Button>
             </form>
           </CardContent>

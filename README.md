@@ -1,10 +1,8 @@
-# Satguru Product Catalog
+# Satguru Traders
 
 A production-ready product catalog built with **Next.js**, **Tailwind CSS**, and **shadcn/ui**. Visitors can browse, search, filter, compare product information, and send enquiries without accounts, carts, checkout, or payments.
 
-**[Live Demo](https://nextjsecommercestarter.com)** · **[Documentation](docs/CUSTOMIZATION.md)** · **[Report Issue](https://github.com/Epic-Design-Labs/nextjs-ecommerce-starter/issues)**
-
-Built by [Epic Design Labs](https://epicdesignlabs.com)
+**[Documentation](docs/CUSTOMIZATION.md)** · **[Report Issue](https://github.com/aakarsh5/Satguru/issues)**
 
 ## Features
 
@@ -108,9 +106,9 @@ See [CUSTOMIZATION.md](docs/CUSTOMIZATION.md) for the full guide.
 
 This starter is free and open source. If you need help customizing it or building a complete ecommerce solution:
 
-- **Email**: support@epicdesignlabs.com
-- **Website**: [epicdesignlabs.com](https://epicdesignlabs.com)
-- **Issues**: [GitHub Issues](https://github.com/Epic-Design-Labs/nextjs-ecommerce-starter/issues)
+- **Email**: lohaniaakarsh2017@gmail.com
+- **Phone**: 9854023952
+- **Issues**: [GitHub Issues](https://github.com/aakarsh5/Satguru/issues)
 
 ## License
 

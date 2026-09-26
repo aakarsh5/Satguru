@@ -1,13 +1,13 @@
 {
-  "name": "satguru-product-catalog",
+  "name": "satguru-traders",
   "version": "1.0.0",
   "description": "A production-ready Next.js product catalog with search, filtering, galleries, and product enquiries.",
-  "author": "Epic Design Labs <support@epicdesignlabs.com> (https://epicdesignlabs.com)",
+  "author": "Satguru Traders <lohaniaakarsh2017@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/Epic-Design-Labs/nextjs-ecommerce-starter",
+  "homepage": "https://github.com/aakarsh5/Satguru",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Epic-Design-Labs/nextjs-ecommerce-starter.git"
+    "url": "https://github.com/aakarsh5/Satguru.git"
   },
   "keywords": [
     "nextjs",

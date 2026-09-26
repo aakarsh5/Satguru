@@ -28,17 +28,9 @@ export default function AboutPage() {
           Built for helpful product discovery
         </h2>
         <p>
-          This catalog was created with a focus on clear product information
-          and a straightforward enquiry experience. It is maintained by{" "}
-          <a
-            href="https://epicdesignlabs.com"
-            target="_blank"
-            rel="noopener"
-            className="underline hover:text-foreground"
-          >
-              Epic Design Labs
-          </a>
-            .
+          Satguru Traders brings together useful product information and a
+          straightforward enquiry experience. Our team is here to help you find
+          the right products and answer questions before you order.
         </p>
 
         <h2 className="!mt-12 text-xl font-semibold text-foreground">
@@ -64,17 +56,7 @@ export default function AboutPage() {
           is here to help.{" "}
           <Link href="/contact" className="underline hover:text-foreground">
             Get in touch
-          </Link>{" "}
-          or visit{" "}
-          <a
-            href="https://epicdesignlabs.com"
-            target="_blank"
-            rel="noopener"
-            className="underline hover:text-foreground"
-          >
-            epicdesignlabs.com
-          </a>
-          .
+          </Link>.
         </p>
       </div>
     </div>

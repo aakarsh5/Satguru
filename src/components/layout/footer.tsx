@@ -133,33 +133,10 @@ export function Footer() {
         <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
             &copy; {siteConfig.copyrightYear} {siteConfig.name}. All rights reserved.
-            <br className="sm:hidden" />
-            {" "}Design by{" "}
-            <a
-              href="https://epicdesignlabs.com"
-              target="_blank"
-              rel="noopener"
-              className="underline hover:text-foreground"
-            >
-              Epic Design Labs
-            </a>
           </p>
-          <div className="flex items-center gap-4">
-            <a href="#" className="text-muted-foreground transition-colors hover:text-foreground" aria-label="Twitter">
-              <IconTwitter className="h-4 w-4" />
-            </a>
-            <a href="#" className="text-muted-foreground transition-colors hover:text-foreground" aria-label="Instagram">
-              <IconInstagram className="h-4 w-4" />
-            </a>
-            <a href="#" className="text-muted-foreground transition-colors hover:text-foreground" aria-label="Facebook">
-              <IconFacebook className="h-4 w-4" />
-            </a>
-            <a href="#" className="text-muted-foreground transition-colors hover:text-foreground" aria-label="YouTube">
-              <IconYouTube className="h-4 w-4" />
-            </a>
-            <a href="#" className="text-muted-foreground transition-colors hover:text-foreground" aria-label="TikTok">
-              <IconTikTok className="h-4 w-4" />
-            </a>
+          <div className="flex flex-col gap-2 text-sm sm:items-end">
+            <a href={`mailto:${siteConfig.contact.email}`} className="text-muted-foreground hover:text-foreground hover:underline">{siteConfig.contact.email}</a>
+            <a href={`tel:${siteConfig.contact.phone}`} className="text-muted-foreground hover:text-foreground hover:underline">{siteConfig.contact.phone}</a>
           </div>
         </div>
       </div>
