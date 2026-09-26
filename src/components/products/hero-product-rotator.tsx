@@ -47,7 +47,7 @@ export function HeroProductRotator({ products, fallbackCategory }: { products: H
     <Link href={`/${product.slug}`} aria-label={`View ${product.name}`} className="absolute inset-0 z-0 cursor-pointer">
       <ProductPhoto key={product.id} src={product.image?.url} alt={product.image?.alt ?? product.name} sizes="(max-width: 768px) 90vw, 44vw" priority className="transition-opacity duration-500" />
     </Link>
-    <span className="absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-black/55 px-3 py-1.5 text-xs font-medium text-white shadow-sm backdrop-blur-sm tabular-nums" aria-live="off">
+    <span className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-black/55 px-3 py-1.5 text-xs font-medium text-white shadow-sm backdrop-blur-sm tabular-nums" aria-live="off">
       <Timer className="h-3.5 w-3.5" aria-hidden="true" />
       <span>{slide.secondsLeft}s</span>
     </span>
