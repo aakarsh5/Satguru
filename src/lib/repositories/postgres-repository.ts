@@ -73,6 +73,70 @@ export const postgresProductRepository: ProductRepository & ProductAdminReposito
   async delete(id) { await requireDatabase()`delete from products where id=${id}` },
 }
 
+export type InventoryMovement = {
+  id: number
+  productId: string
+  variantId: string
+  productName: string
+  variantName: string
+  sku: string
+  quantityBefore: number
+  quantityDelta: number
+  quantityAfter: number
+  reason: string
+  note: string
+  changedBy: string
+  createdAt: string
+}
+
+export async function adjustVariantInventory(input: {
+  productId: string
+  variantId: string
+  mode: "receive" | "remove" | "set"
+  quantity: number
+  reason: string
+  note: string
+  changedBy: string
+}) {
+  const database = requireDatabase()
+  return database.begin(async (tx) => {
+    const rows = await tx`select payload from products where id=${input.productId} for update`
+    if (!rows[0]) throw new Error("Product not found")
+    const product = rows[0].payload as Product
+    const variants = product.variants ?? []
+    const index = variants.findIndex((variant) => variant.id === input.variantId)
+    if (index < 0) throw new Error("Product variant not found")
+    const variant = variants[index]
+    if (!variant.inventory.trackInventory) throw new Error("Enable inventory tracking for this variant before adjusting its stock")
+    const before = variant.inventory.quantity
+    const after = input.mode === "receive" ? before + input.quantity : input.mode === "remove" ? before - input.quantity : input.quantity
+    if (after < 0) throw new Error("Stock cannot be reduced below zero")
+    const delta = after - before
+    if (delta === 0) throw new Error("This adjustment would not change the stock")
+    const updatedVariants = variants.map((item, itemIndex) => itemIndex === index
+      ? { ...item, inventory: { ...item.inventory, quantity: after } }
+      : item)
+    const updatedAt = new Date().toISOString()
+    const updatedProduct = JSON.parse(JSON.stringify({ ...product, variants: updatedVariants, updatedAt }))
+    await tx`update products set payload=${tx.json(updatedProduct)},updated_at=${updatedAt} where id=${input.productId}`
+    const movements = await tx`insert into inventory_movements (product_id,variant_id,quantity_before,quantity_delta,quantity_after,reason,note,changed_by) values (${input.productId},${input.variantId},${before},${delta},${after},${input.reason},${input.note},${input.changedBy}) returning id,created_at`
+    return { before, after, delta, id: Number(movements[0].id) }
+  })
+}
+
+export async function listInventoryMovements(limit = 50): Promise<InventoryMovement[]> {
+  const rows = await requireDatabase()`select m.id,m.product_id,m.variant_id,m.quantity_before,m.quantity_delta,m.quantity_after,m.reason,m.note,m.changed_by,m.created_at,p.name product_name,v->>'name' variant_name,v->>'sku' sku from inventory_movements m join products p on p.id=m.product_id left join lateral jsonb_array_elements(coalesce(p.payload->'variants','[]'::jsonb)) v on v->>'id'=m.variant_id order by m.created_at desc limit ${limit}`
+  return rows.map((row) => {
+    const value = row as unknown as Record<string, unknown>
+    return {
+      id: Number(value.id), productId: String(value.product_id), variantId: String(value.variant_id),
+      productName: String(value.product_name), variantName: String(value.variant_name ?? "Removed variant"), sku: String(value.sku ?? ""),
+      quantityBefore: Number(value.quantity_before), quantityDelta: Number(value.quantity_delta), quantityAfter: Number(value.quantity_after),
+      reason: String(value.reason), note: String(value.note ?? ""), changedBy: String(value.changed_by), createdAt: new Date(String(value.created_at)).toISOString(),
+    }
+  })
+}
+
 async function writeProduct(product: Product, update: boolean, routeId = product.id) {
   const database = requireDatabase()
   await database.begin(async (tx) => {

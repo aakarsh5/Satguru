@@ -8,6 +8,7 @@ import { productAdminRepository, categoryAdminRepository } from "@/lib/repositor
 import { deleteCatalogImage, reorderCatalogImages, uploadCatalogImage } from "@/lib/blob"
 import type { Category, Product } from "@/types"
 import { slugify } from "@/lib/utils"
+import { adjustVariantInventory } from "@/lib/repositories/postgres-repository"
 
 const productSchema = z.object({
   id: z.string().min(1),
@@ -110,6 +111,27 @@ export async function deleteProductAction(formData: FormData) {
   revalidatePath("/admin/products")
   revalidatePath("/admin/categories")
   redirect("/admin/products")
+}
+
+export async function adjustInventoryAction(formData: FormData) {
+  const admin = await requireAdmin()
+  const productId = String(formData.get("productId") ?? "")
+  const variantId = String(formData.get("variantId") ?? "")
+  const mode = String(formData.get("mode") ?? "")
+  const quantity = Number(formData.get("quantity"))
+  const reason = String(formData.get("reason") ?? "")
+  const note = String(formData.get("note") ?? "").trim().slice(0, 500)
+  if (!productId || !variantId) throw new Error("Choose a product variant")
+  if (!(mode === "receive" || mode === "remove" || mode === "set")) throw new Error("Choose a valid stock adjustment")
+  if (!Number.isSafeInteger(quantity) || quantity < 0 || (mode !== "set" && quantity === 0)) throw new Error("Enter a valid whole-number quantity")
+  if (mode === "set" && !reason) throw new Error("Choose a reason for setting the stock count")
+  const allowedReasons = ["purchase", "return", "damage", "loss", "correction", "other"]
+  if (!allowedReasons.includes(reason)) throw new Error("Choose a valid stock adjustment reason")
+  await adjustVariantInventory({ productId, variantId, mode, quantity, reason, note, changedBy: admin.email })
+  revalidatePath("/admin/inventory")
+  revalidatePath("/shop")
+  revalidatePath("/")
+  redirect("/admin/inventory?updated=1")
 }
 
 export async function bulkDeleteProductsAction(formData: FormData) {

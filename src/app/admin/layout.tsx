@@ -9,6 +9,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Link href="/admin" className="text-xl font-semibold">Catalog admin</Link>
         <nav className="flex items-center gap-4 text-sm">
           <Link href="/admin/products">Products</Link>
+          <Link href="/admin/inventory">Inventory</Link>
           <Link href="/admin/categories">Categories</Link>
           <form action={logoutAction}><Button type="submit" variant="outline" size="sm">Sign out</Button></form>
         </nav>
