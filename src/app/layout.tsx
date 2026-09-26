@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getMessages } from "next-intl/server"
 import { Toaster } from "sonner"
+import { Analytics } from "@vercel/analytics/next"
 import { siteConfig } from "@/lib/config"
 import "./globals.css"
 
@@ -59,6 +60,7 @@ export default async function RootLayout({
           {children}
         </NextIntlClientProvider>
         <Toaster position="bottom-right" />
+        <Analytics />
       </body>
     </html>
   )
