@@ -9,6 +9,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { ProductGrid } from "@/components/products/product-grid"
+import { CategoryArtwork } from "@/components/categories/category-artwork"
 import { Pagination } from "@/components/products/pagination"
 import type { Category, Product, PaginationMeta } from "@/types"
 
@@ -80,15 +81,13 @@ export function CategoryView({
       </Breadcrumb>
 
       {/* Header */}
-      <div className="mt-2">
-        <h1 className="text-3xl font-bold tracking-tight">{category.name}</h1>
-        {category.description && (
-          <p className="mt-2 text-muted-foreground">{category.description}</p>
-        )}
-        <p className="mt-1 text-sm text-muted-foreground">
-          {pagination.total}{" "}
-          {pagination.total === 1 ? "product" : "products"}
-        </p>
+      <div className="mt-2 grid overflow-hidden rounded-xl border bg-neutral-50 md:grid-cols-[minmax(0,1fr)_minmax(260px,0.8fr)]">
+        <div className="flex flex-col justify-center p-6 sm:p-10">
+          <h1 className="text-3xl font-bold tracking-tight">{category.name}</h1>
+          {category.description && <p className="mt-2 max-w-2xl text-muted-foreground">{category.description}</p>}
+          <p className="mt-3 text-sm text-muted-foreground">{pagination.total} {pagination.total === 1 ? "product" : "products"}</p>
+        </div>
+        <CategoryArtwork category={category} className="min-h-48 rounded-none md:min-h-64" />
       </div>
 
       {/* Subcategories — parent prefix stripped, no "All" pill */}

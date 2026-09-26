@@ -5,7 +5,7 @@ import { Search, Menu, ChevronDown } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { SearchModal } from "@/components/search/search-modal"
 import { cn } from "@/lib/utils"
-import { shopLinks, mobileMenuSections } from "@/lib/navigation"
+import { infoLinks } from "@/lib/navigation"
 import { siteConfig } from "@/lib/config"
 import { useTranslations } from "next-intl"
 import { useState, useEffect } from "react"
@@ -22,7 +22,7 @@ export function Header({ categories = [] }: HeaderProps) {
   const tCommon = useTranslations("common")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
+  const sortedCategories = [...allCategories].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
   // Cmd+K / Ctrl+K to open search
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -59,63 +59,22 @@ export function Header({ categories = [] }: HeaderProps) {
             </div>
 
             <nav className="flex flex-1 flex-col overflow-y-auto px-6 pb-8">
-              {mobileMenuSections.map((section, sectionIdx) => (
-                <div key={section.label}>
-                  {sectionIdx > 0 && <div className="my-4 border-t" />}
-                  <p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                    {section.label}
-                  </p>
-                  <div className="ml-3">
-                  {section.items.map((item) => {
-                    const slug = item.href.replace("/", "")
-                    const parentCat = allCategories.find((c) => c.slug === slug)
-                    const subcats = parentCat
-                      ? allCategories.filter((c) => c.parentId === parentCat.id)
-                      : []
-                    const hasSubcats = subcats.length > 0
-                    const isExpanded = expandedCategory === item.name
-
-                    return (
-                      <div key={item.name}>
-                        <div className="flex items-center">
-                          <Link
-                            href={item.href}
-                            className="flex-1 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-foreground/70"
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            {item.name}
-                          </Link>
-                          {hasSubcats && (
-                            <button
-                              onClick={() => setExpandedCategory(isExpanded ? null : item.name)}
-                              className="p-2 text-muted-foreground hover:text-foreground"
-                              aria-label={`${isExpanded ? "Collapse" : "Expand"} ${item.name}`}
-                              aria-expanded={isExpanded}
-                            >
-                              <ChevronDown className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-180")} />
-                            </button>
-                          )}
-                        </div>
-                        {hasSubcats && isExpanded && (
-                          <div className="mb-2 ml-4 flex flex-col border-l pl-4">
-                            {subcats.map((sub) => (
-                              <Link
-                                key={sub.id}
-                                href={`/${sub.slug}`}
-                                className="py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                                onClick={() => setMobileMenuOpen(false)}
-                              >
-                                {sub.name}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                  </div>
+              <div>
+                <p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Shop</p>
+                <Link href="/shop" className="block py-2.5 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>All products</Link>
+                <div className="ml-3 border-l pl-4">
+                  {sortedCategories.map((category) => (
+                    <Link key={category.id} href={`/${category.slug}`} className={cn("block py-2 text-sm text-muted-foreground hover:text-foreground", category.parentId && "pl-3")} onClick={() => setMobileMenuOpen(false)}>
+                      {category.name}
+                    </Link>
+                  ))}
                 </div>
-              ))}
+              </div>
+              <div className="my-4 border-t" />
+              <div>
+                <p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Information</p>
+                {infoLinks.map((item) => <Link key={item.href} href={item.href} className="block py-2.5 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>{item.name}</Link>)}
+              </div>
             </nav>
           </SheetContent>
         </Sheet>
@@ -126,16 +85,16 @@ export function Header({ categories = [] }: HeaderProps) {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden lg:flex lg:gap-6">
-          {shopLinks.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="text-sm font-medium text-foreground transition-colors hover:text-foreground/70"
-            >
-              {item.name}
-            </Link>
-          ))}
+        <nav className="hidden items-center gap-6 lg:flex">
+          <Link href="/shop" className="text-sm font-medium text-foreground transition-colors hover:text-foreground/70">Shop</Link>
+          <details className="group relative">
+            <summary className="flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-foreground hover:text-foreground/70">Categories<ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" /></summary>
+            <div className="absolute left-1/2 top-full mt-3 grid max-h-[70vh] min-w-72 -translate-x-1/2 grid-cols-2 gap-x-6 overflow-y-auto rounded-lg border bg-white p-5 shadow-xl">
+              {sortedCategories.map((category) => (
+                <Link key={category.id} href={`/${category.slug}`} className={cn("rounded px-2 py-2 text-sm hover:bg-neutral-100", category.parentId && "pl-5 text-muted-foreground")}>{category.name}</Link>
+              ))}
+            </div>
+          </details>
         </nav>
 
         {/* Actions */}

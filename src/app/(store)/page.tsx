@@ -1,12 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { siteConfig } from "@/lib/config"
 import { ProductGrid } from "@/components/products/product-grid"
+import { CategoryArtwork } from "@/components/categories/category-artwork"
 import { NewsletterForm } from "@/components/layout/newsletter-form"
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"
 import { productRepository, categoryRepository } from "@/lib/repositories"
 
 export const metadata: Metadata = {
@@ -70,15 +69,7 @@ export default async function HomePage() {
         <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
           {categories.map((category) => (
             <Link key={category.id} href={`/${category.slug}`} className="group">
-              <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
-                <Image
-                  src={category.image?.url ?? PLACEHOLDER_IMAGE}
-                  alt={category.image?.alt ?? category.name}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  sizes="(max-width: 768px) 50vw, 16vw"
-                />
-              </div>
+              <CategoryArtwork category={category} className="aspect-square transition-transform duration-300 group-hover:scale-[1.02]" />
               <div className="mt-3 text-center">
                 <h3 className="text-sm font-medium group-hover:underline">
                   {category.name}

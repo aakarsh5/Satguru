@@ -1,9 +1,18 @@
 import { requireAdmin } from "@/lib/admin-auth"
-import { categoryAdminRepository } from "@/lib/repositories"
-import { deleteCategoryAction, saveCategoryAction } from "../actions"
+import { categoryAdminRepository, productAdminRepository } from "@/lib/repositories"
+import { CategoryForm } from "./category-form"
+import { CategoriesTable } from "./categories-table"
 
-export default async function AdminCategoriesPage() {
+export default async function AdminCategoriesPage({ searchParams }: { searchParams: Promise<{ error?: string; deleted?: string }> }) {
   await requireAdmin()
-  const categories = await categoryAdminRepository.list()
-  return <main><h1 className="text-2xl font-semibold">Categories</h1><form action={saveCategoryAction} className="mt-6 space-y-4 rounded-lg border p-5"><input type="hidden" name="categoryId" value={crypto.randomUUID()} /><div className="grid gap-4 md:grid-cols-2"><label className="space-y-1 text-sm font-medium">Name<input name="name" required placeholder="Coffee" className="h-10 w-full rounded-md border px-3 font-normal" /></label><label className="space-y-1 text-sm font-medium md:col-span-2">Description<textarea name="description" rows={3} className="w-full rounded-md border p-3 font-normal" /></label><label className="space-y-1 text-sm font-medium">Parent category<select name="parentId" className="h-10 w-full rounded-md border px-3 font-normal"><option value="">No parent</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label className="space-y-1 text-sm font-medium">Display order<input name="order" type="number" defaultValue="0" className="h-10 w-full rounded-md border px-3 font-normal" /></label></div><button type="submit" className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground">Create category</button></form><div className="mt-6 divide-y rounded-lg border">{categories.map((category) => <div key={category.id} className="flex items-center justify-between p-4"><div><strong>{category.name}</strong><p className="text-sm text-muted-foreground">/{category.slug}</p></div><form action={deleteCategoryAction}><input type="hidden" name="id" value={category.id} /><button className="text-sm text-destructive" type="submit">Delete</button></form></div>)}</div></main>
+  const [{ error, deleted }, categories, products] = await Promise.all([searchParams, categoryAdminRepository.list(), productAdminRepository.listAll()])
+  const productCounts = Object.fromEntries(categories.map((category) => [category.id, products.filter((product) => product.categoryIds.includes(category.id)).length]))
+  return <main>
+    <div className="mb-6"><p className="text-sm text-muted-foreground">Catalog management</p><h1 className="mt-1 text-2xl font-semibold">Categories</h1><p className="mt-1 text-sm text-muted-foreground">Organize products, add category imagery, and control how categories appear across the store.</p></div>
+    <details className="mb-8 rounded-xl border bg-white shadow-sm" open={categories.length === 0}>
+      <summary className="cursor-pointer list-none px-5 py-4 font-medium">Create a category</summary>
+      <div className="border-t p-5"><CategoryForm categories={categories} categoryId={crypto.randomUUID()} /></div>
+    </details>
+    <CategoriesTable categories={categories} productCounts={productCounts} error={error} deleted={deleted} />
+  </main>
 }

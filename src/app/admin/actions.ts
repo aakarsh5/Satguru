@@ -101,28 +101,70 @@ export async function deleteProductAction(formData: FormData) {
     ...product.images.map((image) => image.url),
     ...product.variants.flatMap((variant) => (variant.images ?? []).map((image) => image.url)),
   ]
-  await Promise.all(imageUrls.filter((url) => url.startsWith("https://") || url.startsWith("/uploads/catalog/")).map((url) => deleteCatalogImage(url)))
   await productAdminRepository.delete(id)
+  await Promise.allSettled(imageUrls.filter((url) => url.startsWith("https://") || url.startsWith("/uploads/catalog/")).map((url) => deleteCatalogImage(url)))
   revalidatePath("/shop")
+  revalidatePath("/")
+  revalidatePath("/admin/products")
+  revalidatePath("/admin/categories")
+  redirect("/admin/products")
+}
+
+export async function bulkDeleteProductsAction(formData: FormData) {
+  await requireAdmin()
+  const ids = [...new Set(JSON.parse(String(formData.get("ids") || "[]")) as string[])]
+  if (ids.length === 0 || ids.length > 500) throw new Error("Select between 1 and 500 products to delete")
+  const products = await Promise.all(ids.map((id) => productAdminRepository.getById(id)))
+  for (const product of products) {
+    if (!product) continue
+    const imageUrls = [...product.images, ...product.variants.flatMap((variant) => variant.images ?? [])].map((image) => image.url)
+    await productAdminRepository.delete(product.id)
+    await Promise.allSettled(imageUrls.filter((url) => url.startsWith("https://") || url.startsWith("/uploads/catalog/")).map((url) => deleteCatalogImage(url)))
+  }
+  revalidatePath("/shop")
+  revalidatePath("/")
+  revalidatePath("/admin/products")
+  revalidatePath("/admin/categories")
   redirect("/admin/products")
 }
 
 export async function saveCategoryAction(formData: FormData) {
   await requireAdmin()
-  const category = z.object({ id: z.string().min(1), name: z.string().trim().min(1), description: z.string().default(""), parentId: z.string().optional(), order: z.coerce.number().int().default(0), image: z.any().optional() }).parse({
+  const existing = JSON.parse(String(formData.get("existingCategory") || "{}")) as Partial<Category>
+  const category = z.object({ id: z.string().min(1), name: z.string().trim().min(1), description: z.string().default(""), parentId: z.string().optional(), order: z.coerce.number().int().default(0), image: z.object({ url: z.string().url().or(z.string().startsWith("/")), alt: z.string() }).optional() }).parse({
+    ...existing,
     id: formData.get("categoryId"),
     name: formData.get("name"),
     description: formData.get("description") ?? "",
     parentId: formData.get("parentId") || undefined,
     order: formData.get("order") ?? 0,
+    image: JSON.parse(String(formData.get("image") || "null")) ?? undefined,
   }) as Category
   const categories = await categoryAdminRepository.list()
   if (category.parentId === category.id || (category.parentId && !categories.some((item) => item.id === category.parentId))) throw new Error("Invalid category parent")
-  const value = { ...category, slug: slugify(category.name), order: Number(category.order) || 0 }
-  if (await categoryAdminRepository.getById(category.id)) await categoryAdminRepository.update(category.id, value)
+  let ancestorId = category.parentId
+  const visitedAncestors = new Set<string>()
+  while (ancestorId) {
+    if (ancestorId === category.id || visitedAncestors.has(ancestorId)) throw new Error("A category cannot be nested inside itself")
+    visitedAncestors.add(ancestorId)
+    ancestorId = categories.find((item) => item.id === ancestorId)?.parentId
+  }
+  const baseSlug = slugify(category.name) || "category"
+  const usedSlugs = new Set(categories.filter((item) => item.id !== category.id).map((item) => item.slug))
+  let slug = baseSlug
+  let suffix = 2
+  while (usedSlugs.has(slug)) slug = `${baseSlug}-${suffix++}`
+  const value = { ...category, slug, order: Number(category.order) || 0 }
+  const previous = await categoryAdminRepository.getById(category.id)
+  if (previous) await categoryAdminRepository.update(category.id, value)
   else await categoryAdminRepository.create(value)
+  if (previous?.image?.url && previous.image.url !== value.image?.url && (previous.image.url.startsWith("https://") || previous.image.url.startsWith("/uploads/catalog/"))) {
+    await deleteCatalogImage(previous.image.url).catch(() => console.warn("Could not remove replaced category image"))
+  }
   revalidatePath("/shop")
   revalidatePath("/")
+  revalidatePath(`/${value.slug}`)
+  revalidatePath("/admin/categories")
   redirect("/admin/categories")
 }
 
@@ -131,9 +173,45 @@ export async function deleteCategoryAction(formData: FormData) {
   const id = String(formData.get("id") ?? "")
   if ((await categoryAdminRepository.getChildren(id)).length) throw new Error("Delete child categories first")
   if (await categoryAdminRepository.hasProducts(id)) throw new Error("Remove products from this category first")
+  const category = await categoryAdminRepository.getById(id)
   await categoryAdminRepository.delete(id)
+  if (category?.image?.url && (category.image.url.startsWith("https://") || category.image.url.startsWith("/uploads/catalog/"))) await deleteCatalogImage(category.image.url).catch(() => console.warn("Could not remove deleted category image"))
   revalidatePath("/shop")
+  revalidatePath("/")
+  revalidatePath("/admin/categories")
   redirect("/admin/categories")
+}
+
+export async function bulkDeleteCategoriesAction(formData: FormData) {
+  await requireAdmin()
+  const ids = [...new Set(JSON.parse(String(formData.get("ids") || "[]")) as string[])]
+  if (ids.length === 0 || ids.length > 500) throw new Error("Select between 1 and 500 categories to delete")
+  const selected = new Set(ids)
+  const [categories, products] = await Promise.all([categoryAdminRepository.list(), productAdminRepository.listAll()])
+  const blocked = categories.filter((category) => selected.has(category.id)).filter((category) =>
+    products.some((product) => product.categoryIds.includes(category.id)) ||
+    categories.some((child) => child.parentId === category.id && !selected.has(child.id))
+  )
+  if (blocked.length) redirect(`/admin/categories?error=category-dependencies&blocked=${blocked.length}`)
+  const depth = (category: Category) => {
+    let value = 0
+    let parentId = category.parentId
+    while (parentId) {
+      value += 1
+      parentId = categories.find((item) => item.id === parentId)?.parentId
+      if (value > categories.length) break
+    }
+    return value
+  }
+  const deletable = categories.filter((category) => selected.has(category.id)).sort((a, b) => depth(b) - depth(a))
+  for (const category of deletable) {
+    await categoryAdminRepository.delete(category.id)
+    if (category.image?.url && (category.image.url.startsWith("https://") || category.image.url.startsWith("/uploads/catalog/"))) await deleteCatalogImage(category.image.url).catch(() => console.warn("Could not remove deleted category image"))
+  }
+  revalidatePath("/shop")
+  revalidatePath("/")
+  revalidatePath("/admin/categories")
+  redirect("/admin/categories?deleted=" + deletable.length)
 }
 
 export async function uploadProductImageAction(formData: FormData) {
@@ -141,6 +219,13 @@ export async function uploadProductImageAction(formData: FormData) {
   const file = formData.get("file")
   if (!(file instanceof File) || file.size === 0) throw new Error("An image file is required")
   return uploadCatalogImage(file, `catalog/${String(formData.get("productId") || "new")}/${file.name}`)
+}
+
+export async function uploadCategoryImageAction(formData: FormData) {
+  await requireAdmin()
+  const file = formData.get("file")
+  if (!(file instanceof File) || file.size === 0) throw new Error("An image file is required")
+  return uploadCatalogImage(file, `categories/${String(formData.get("categoryId") || "new")}/${file.name}`)
 }
 
 export async function deleteProductImageAction(formData: FormData) {
