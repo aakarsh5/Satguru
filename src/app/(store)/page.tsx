@@ -62,7 +62,6 @@ export default async function HomePage() {
               <div className="absolute inset-[5%] overflow-hidden rounded-[2.25rem] border border-white/70 bg-white shadow-xl">
                 <HeroProductRotator products={rotatingProducts} fallbackCategory={topCategories[0]} />
               </div>
-              <div className="absolute -left-1 bottom-[12%] flex items-center gap-3 rounded-2xl border border-stone-200/80 bg-white p-3 shadow-lg sm:-left-5 sm:p-4"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800"><BadgeCheck className="h-5 w-5" /></div><div><p className="text-sm font-semibold text-stone-900">Helpful guidance</p><p className="text-xs text-stone-500">Questions? Talk to our team</p></div></div>
               <Link href="/shop" className="absolute -right-1 top-[12%] inline-flex items-center gap-2 rounded-full border border-stone-200/80 bg-white px-4 py-3 text-sm font-semibold text-stone-800 shadow-lg transition-transform hover:scale-105 sm:-right-4"><PackageSearch className="h-4 w-4 text-emerald-700" />Browse catalogue<ArrowRight className="h-4 w-4" /></Link>
             </div>
           </div>

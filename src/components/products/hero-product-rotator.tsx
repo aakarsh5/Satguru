@@ -19,7 +19,7 @@ export function HeroProductRotator({ products, fallbackCategory }: { products: H
   const [paused, setPaused] = useState(false)
 
   useEffect(() => {
-    if (paused || products.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     const timer = window.setInterval(() => setSlide((current) => current.secondsLeft <= 1
       ? { index: (current.index + 1) % products.length, secondsLeft: 10 }
       : { ...current, secondsLeft: current.secondsLeft - 1 }), 1000)
@@ -44,18 +44,23 @@ export function HeroProductRotator({ products, fallbackCategory }: { products: H
     onFocusCapture={() => setPaused(true)}
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPaused(false) }}
   >
-    <ProductPhoto key={product.id} src={product.image?.url} alt={product.image?.alt ?? product.name} sizes="(max-width: 768px) 90vw, 44vw" priority className="transition-opacity duration-500" />
-    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent p-6 pt-24 text-white sm:p-8 sm:pt-28">
+    <Link href={`/${product.slug}`} aria-label={`View ${product.name}`} className="absolute inset-0 z-0 cursor-pointer">
+      <ProductPhoto key={product.id} src={product.image?.url} alt={product.image?.alt ?? product.name} sizes="(max-width: 768px) 90vw, 44vw" priority className="transition-opacity duration-500" />
+    </Link>
+    <span className="absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-black/55 px-3 py-1.5 text-xs font-medium text-white shadow-sm backdrop-blur-sm tabular-nums" aria-live="off">
+      <Timer className="h-3.5 w-3.5" aria-hidden="true" />
+      <span>{slide.secondsLeft}s</span>
+    </span>
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent p-6 pt-24 text-white sm:p-8 sm:pt-28">
       <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/75">Explore the collection</p>
-      <Link href={`/${product.slug}`} className="mt-2 inline-flex items-center gap-2 text-xl font-semibold hover:underline sm:text-2xl">{product.name}<ArrowRight className="h-5 w-5" /></Link>
+      <Link href={`/${product.slug}`} className="pointer-events-auto mt-2 inline-flex items-center gap-2 text-xl font-semibold hover:underline sm:text-2xl">{product.name}<ArrowRight className="h-5 w-5" /></Link>
       <div className="mt-4 flex items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3 text-xs text-white/80">
           <span>Product {index + 1} of {products.length}</span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 tabular-nums" aria-live="off"><Timer className="h-3.5 w-3.5" aria-hidden="true" />{slide.secondsLeft}s</span>
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={() => move(-1)} aria-label="Show previous product" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/50 bg-black/20 text-white transition-colors hover:bg-white/20"><ArrowLeft className="h-4 w-4" /></button>
-          <button type="button" onClick={() => move(1)} aria-label="Show next product" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/50 bg-black/20 text-white transition-colors hover:bg-white/20"><ArrowRight className="h-4 w-4" /></button>
+          <button type="button" onClick={() => move(-1)} aria-label="Show previous product" className="pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full border border-white/50 bg-black/20 text-white transition-colors hover:bg-white/20"><ArrowLeft className="h-4 w-4" /></button>
+          <button type="button" onClick={() => move(1)} aria-label="Show next product" className="pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full border border-white/50 bg-black/20 text-white transition-colors hover:bg-white/20"><ArrowRight className="h-4 w-4" /></button>
         </div>
       </div>
     </div>
