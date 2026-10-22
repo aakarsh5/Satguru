@@ -44,19 +44,20 @@ export async function createCustomerOrder(input: {
     const product = products[index]
     if (!product || product.status !== "active") throw new Error("A product in your cart is no longer available. Refresh the catalog and try again.")
     const variant = product.variants.find((item) => item.id === line.variantId)
-    if (!variant) throw new Error(`${product.name} has an option that is no longer available. Refresh the catalog and try again.`)
-    if (variant.inventory.trackInventory && !variant.inventory.allowBackorder && line.quantity > variant.inventory.quantity) {
+    const defaultVariant = product.variants.length === 0 && line.variantId === "__default__"
+    if (!variant && !defaultVariant) throw new Error(`${product.name} has an option that is no longer available. Refresh the catalog and try again.`)
+    if (variant?.inventory.trackInventory && !variant.inventory.allowBackorder && line.quantity > variant.inventory.quantity) {
       throw new Error(`Only ${variant.inventory.quantity} units of ${product.name} (${variant.name}) are currently available.`)
     }
     return {
       productId: product.id,
       productName: product.name,
       slug: product.slug,
-      variantId: variant.id,
-      variantName: variant.name,
-      sku: variant.sku,
+      variantId: variant?.id ?? "__default__",
+      variantName: variant?.name ?? "Default",
+      sku: variant?.sku ?? "",
       quantity: line.quantity,
-      imageUrl: variant.images[0]?.url ?? product.images[0]?.url ?? "",
+      imageUrl: variant?.images[0]?.url ?? product.images[0]?.url ?? "",
     }
   })
 

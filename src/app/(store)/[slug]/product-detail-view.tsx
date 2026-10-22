@@ -42,7 +42,8 @@ export function ProductDetailView({
   )
   const { addItem } = useCart()
   const [quantity, setQuantity] = useState(1)
-  const available = Boolean(selectedVariant && (!selectedVariant.inventory.trackInventory || selectedVariant.inventory.allowBackorder || selectedVariant.inventory.quantity > 0))
+  const defaultVariant = product.variants.length === 0
+  const available = defaultVariant || Boolean(selectedVariant && (!selectedVariant.inventory.trackInventory || selectedVariant.inventory.allowBackorder || selectedVariant.inventory.quantity > 0))
 
   const breadcrumbLd = breadcrumbJsonLd([
     { name: "Shop", href: "/shop" },
@@ -125,10 +126,10 @@ export function ProductDetailView({
             </div>
           )}
 
-          {selectedVariant && <div className="mt-6 flex flex-wrap items-end gap-3">
-            <label className="text-sm font-medium">Quantity<input aria-label="Quantity" type="number" min={1} max={selectedVariant.inventory.trackInventory && !selectedVariant.inventory.allowBackorder ? Math.max(1, selectedVariant.inventory.quantity) : 100000} value={quantity} onChange={(event) => { const value = Math.max(1, Number(event.target.value) || 1); const stockLimit = selectedVariant.inventory.trackInventory && !selectedVariant.inventory.allowBackorder ? Math.max(1, selectedVariant.inventory.quantity) : 100000; setQuantity(Math.min(value, stockLimit)) }} className="mt-1 block h-11 w-24 rounded-md border px-3 tabular-nums" /></label>
-            <Button size="lg" disabled={!available} onClick={() => addItem(product, selectedVariant.id, quantity)}><ShoppingCart className="h-4 w-4" />{available ? "Add to cart" : "Out of stock"}</Button>
-            {selectedVariant.inventory.trackInventory && <span className="pb-3 text-xs text-muted-foreground">{available ? `${selectedVariant.inventory.quantity} available` : "Currently unavailable"}</span>}
+          {(selectedVariant || defaultVariant) && <div className="mt-6 flex flex-wrap items-end gap-3">
+            <label className="text-sm font-medium">Quantity<input aria-label="Quantity" type="number" min={1} max={selectedVariant?.inventory.trackInventory && !selectedVariant.inventory.allowBackorder ? Math.max(1, selectedVariant.inventory.quantity) : 100000} value={quantity} onChange={(event) => { const value = Math.max(1, Number(event.target.value) || 1); const stockLimit = selectedVariant?.inventory.trackInventory && !selectedVariant.inventory.allowBackorder ? Math.max(1, selectedVariant.inventory.quantity) : 100000; setQuantity(Math.min(value, stockLimit)) }} className="mt-1 block h-11 w-24 rounded-md border px-3 tabular-nums" /></label>
+            <Button size="lg" disabled={!available} onClick={() => addItem(product, selectedVariant?.id ?? "__default__", quantity)}><ShoppingCart className="h-4 w-4" />{available ? "Add to cart" : "Out of stock"}</Button>
+            {selectedVariant?.inventory.trackInventory && <span className="pb-3 text-xs text-muted-foreground">{available ? `${selectedVariant.inventory.quantity} available` : "Currently unavailable"}</span>}
           </div>}
 
           <Button asChild size="lg" className="mt-6 w-full sm:w-fit">

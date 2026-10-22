@@ -56,16 +56,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     itemCount: lines.reduce((sum, line) => sum + line.quantity, 0),
     addItem(product, variantId, quantity = 1) {
       const variant = product.variants.find((item) => item.id === variantId)
-      if (!variant || !Number.isSafeInteger(quantity) || quantity < 1) return
+      const isDefaultProduct = product.variants.length === 0 && variantId === "__default__"
+      if ((!variant && !isDefaultProduct) || !Number.isSafeInteger(quantity) || quantity < 1) return
       const safeQuantity = Math.min(quantity, 100000)
       const line: CartLine = {
         productId: product.id,
         slug: product.slug,
         productName: product.name,
-        variantId: variant.id,
-        variantName: variant.name,
-        sku: variant.sku,
-        imageUrl: variant.images[0]?.url ?? product.images[0]?.url ?? "",
+        variantId: variant?.id ?? "__default__",
+        variantName: variant?.name ?? "Default",
+        sku: variant?.sku ?? "",
+        imageUrl: variant?.images[0]?.url ?? product.images[0]?.url ?? "",
         quantity: safeQuantity,
       }
       setLines((current) => {
