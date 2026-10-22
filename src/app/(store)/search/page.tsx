@@ -8,6 +8,7 @@ import { Pagination } from "@/components/products/pagination"
 export const metadata: Metadata = {
   title: "Search",
   description: "Search our product catalog.",
+  robots: { index: false, follow: true },
 }
 
 interface SearchPageProps {

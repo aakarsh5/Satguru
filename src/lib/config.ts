@@ -6,9 +6,11 @@
 // Ignore an empty value from deployment settings so metadataBase always gets
 // a valid absolute URL during a Vercel build.
 const configuredBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.trim()
+const projectProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim()
 const deploymentUrl = process.env.VERCEL_URL?.trim()
 const siteUrl =
-  configuredBaseUrl ||
+  configuredBaseUrl?.replace(/\/+$/, "") ||
+  (projectProductionUrl ? `https://${projectProductionUrl}` : undefined) ||
   (deploymentUrl ? `https://${deploymentUrl}` : "http://localhost:3000")
 
 export const siteConfig = {
