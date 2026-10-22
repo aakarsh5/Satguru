@@ -15,10 +15,19 @@ const isLocalBaseUrl = parsedBaseUrl && (
   parsedBaseUrl.hostname === "127.0.0.1" ||
   parsedBaseUrl.hostname === "::1"
 )
-const usableBaseUrl = parsedBaseUrl && !(process.env.NODE_ENV === "production" && isLocalBaseUrl)
+const productionHost = projectProductionUrl?.replace(/^https?:\/\//i, "").split("/")[0]?.toLowerCase()
+const isDeploymentSpecificVercelUrl = Boolean(
+  parsedBaseUrl?.hostname.toLowerCase().endsWith(".vercel.app") &&
+  productionHost &&
+  parsedBaseUrl.hostname.toLowerCase() !== productionHost
+)
+const useProjectProductionUrl = process.env.NODE_ENV === "production" &&
+  (isLocalBaseUrl || isDeploymentSpecificVercelUrl)
+const usableBaseUrl = parsedBaseUrl && !useProjectProductionUrl
   ? configuredBaseUrl?.replace(/\/+$/, "")
   : undefined
 const siteUrl =
+  (useProjectProductionUrl && projectProductionUrl ? `https://${projectProductionUrl}` : undefined) ||
   usableBaseUrl ||
   (projectProductionUrl ? `https://${projectProductionUrl}` : undefined) ||
   (deploymentUrl ? `https://${deploymentUrl}` : "http://localhost:3000")
