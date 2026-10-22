@@ -10,12 +10,11 @@ import { HeroProductRotator } from "@/components/products/hero-product-rotator"
 import { productRepository, categoryRepository } from "@/lib/repositories"
 
 export const metadata: Metadata = {
-  title: siteConfig.name,
-  description:
-    siteConfig.description,
+  title: "Product Catalogue",
+  description: "Browse product collections from Satguru Traders, view product details, and call us for availability and enquiries.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: siteConfig.name,
+    title: `Product Catalogue | ${siteConfig.name}`,
     description: siteConfig.description,
     type: "website",
     url: siteConfig.url,

@@ -7,6 +7,7 @@ import { brandRepository } from "@/lib/repositories"
 export const metadata: Metadata = {
   title: "All Brands",
   description: "Browse all brands in our store.",
+  robots: { index: false, follow: true },
 }
 
 export default async function BrandsPage() {

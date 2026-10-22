@@ -72,6 +72,7 @@ export async function generateMetadata({
     return {
       title: brand.name,
       description: brand.description,
+      robots: { index: false, follow: true },
       alternates: { canonical: `/${brand.slug}` },
       openGraph: {
         title: brand.name,

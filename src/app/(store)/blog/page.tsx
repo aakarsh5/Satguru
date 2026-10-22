@@ -24,6 +24,7 @@ export async function generateMetadata({
     description:
       "Guides, stories, and notes from the team — sustainability, product care, and behind the scenes.",
     alternates: { canonical },
+    robots: { index: false, follow: true },
   }
 }
 

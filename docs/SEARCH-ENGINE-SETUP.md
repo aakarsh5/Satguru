@@ -1,6 +1,6 @@
 # Search engine setup
 
-The site exposes a crawlable `robots.txt` and a generated `sitemap.xml`. The sitemap includes active products, categories, brands, blog posts, and published information pages. Search and admin routes are marked or blocked from indexing.
+The site exposes a crawlable `robots.txt` and a generated `sitemap.xml`. The sitemap includes active products, categories, and published information pages. Search, admin, and the current sample blog and brand pages are marked or omitted from indexing until they contain business-specific content.
 
 ## Set the production URL
 
