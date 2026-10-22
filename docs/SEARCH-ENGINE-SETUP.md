@@ -15,8 +15,8 @@ The sitemap should contain the production host, not `localhost` or a one-off pre
 
 ## Submit the site to Google
 
-1. Open [Google Search Console](https://search.google.com/search-console/) and add a **Domain** property for the domain you control.
-2. Verify ownership by adding the TXT record Search Console provides in your domain's DNS settings. Keep that record in place after verification.
+1. Open [Google Search Console](https://search.google.com/search-console/) and add the **URL-prefix** property `https://satguru-two.vercel.app/`. A Domain property requires DNS control of the domain; use that only if you have a custom domain of your own.
+2. Choose the HTML tag verification method. Copy the token from the `content` value of the provided `<meta name="google-site-verification" ...>` tag into the Vercel Production environment variable `GOOGLE_SITE_VERIFICATION`, then redeploy. The app adds Google's verification meta tag to the page head. Return to Search Console and click **Verify**.
 3. In Search Console, open **Sitemaps** and submit `sitemap.xml`.
 4. Use **URL Inspection** for the homepage and a few active product or category URLs. If the live test succeeds, request indexing for those URLs.
 5. Check the **Page indexing** report later for blocked, duplicate, or failed URLs.
