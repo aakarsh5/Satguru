@@ -4,13 +4,14 @@ import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { AnnouncementBar } from "@/components/layout/announcement-bar"
 import { categoryRepository } from "@/lib/repositories"
+import { CartProvider } from "@/components/cart/cart-provider"
 
 export default async function NotFound() {
   // Fetch categories so the header nav still works on 404
   const categories = await categoryRepository.list()
 
   return (
-    <>
+    <CartProvider>
       <AnnouncementBar />
       <Header categories={categories} />
       <main className="flex-1">
@@ -33,6 +34,6 @@ export default async function NotFound() {
         </div>
       </main>
       <Footer />
-    </>
+    </CartProvider>
   )
 }
