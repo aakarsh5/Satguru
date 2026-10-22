@@ -11,8 +11,10 @@ export const metadata: Metadata = {
     default: `${siteConfig.name} — ${siteConfig.tagline}`,
     template: `%s | ${siteConfig.name}`,
   },
+  applicationName: siteConfig.name,
   description: siteConfig.description,
   metadataBase: new URL(siteConfig.url),
+  icons: { icon: "/favicon.png" },
   ...(process.env.GOOGLE_SITE_VERIFICATION
     ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }
     : {}),
@@ -30,18 +32,6 @@ const organizationJsonLd = {
   url: siteConfig.url,
 }
 
-const websiteJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: siteConfig.name,
-  url: siteConfig.url,
-  potentialAction: {
-    "@type": "SearchAction",
-    target: `${siteConfig.url}/search?q={search_term_string}`,
-    "query-input": "required name=search_term_string",
-  },
-}
-
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -56,7 +46,7 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([organizationJsonLd, websiteJsonLd]),
+            __html: JSON.stringify(organizationJsonLd),
           }}
         />
         <NextIntlClientProvider messages={messages}>

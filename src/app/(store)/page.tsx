@@ -10,14 +10,15 @@ import { HeroProductRotator } from "@/components/products/hero-product-rotator"
 import { productRepository, categoryRepository } from "@/lib/repositories"
 
 export const metadata: Metadata = {
-  title: "Product Catalogue",
+  title: { absolute: siteConfig.name },
   description: "Browse product collections from Satguru Traders, view product details, and call us for availability and enquiries.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: `Product Catalogue | ${siteConfig.name}`,
+    title: siteConfig.name,
     description: siteConfig.description,
     type: "website",
     url: siteConfig.url,
+    siteName: siteConfig.name,
   },
 }
 
@@ -40,6 +41,18 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "Satguru Traders",
+        alternateName: ["Satguru", "satguru-two.vercel.app"],
+        url: `${siteConfig.url.replace(/\/$/, "")}/`,
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${siteConfig.url}/search?q={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      }) }} />
       <section className="relative isolate overflow-hidden bg-[#f5f3ed]">
         <div aria-hidden="true" className="absolute -right-48 -top-48 h-[34rem] w-[34rem] rounded-full border border-stone-300/70" />
         <div aria-hidden="true" className="absolute -right-28 -top-28 h-[25rem] w-[25rem] rounded-full border border-stone-300/60" />
