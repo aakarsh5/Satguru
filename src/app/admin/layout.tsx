@@ -14,6 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Link href="/admin" className="text-xl font-semibold">Catalog admin</Link>
         <nav className="flex items-center gap-1 text-sm">
           <Link href="/admin/products" className="rounded-md px-3 py-2 transition-all duration-150 hover:-translate-y-px hover:bg-muted hover:shadow-sm active:translate-y-0">Products</Link>
+          <Link href="/admin/orders" className="rounded-md px-3 py-2 transition-all duration-150 hover:-translate-y-px hover:bg-muted hover:shadow-sm active:translate-y-0">Orders</Link>
           <Link href="/admin/inventory" className="rounded-md px-3 py-2 transition-all duration-150 hover:-translate-y-px hover:bg-muted hover:shadow-sm active:translate-y-0">Inventory</Link>
           <Link href="/admin/categories" className="rounded-md px-3 py-2 transition-all duration-150 hover:-translate-y-px hover:bg-muted hover:shadow-sm active:translate-y-0">Categories</Link>
           <form action={logoutAction}><Button type="submit" variant="outline" size="sm">Sign out</Button></form>

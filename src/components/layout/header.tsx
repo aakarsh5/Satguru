@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Search, Menu, ChevronDown } from "lucide-react"
+import { Search, Menu, ChevronDown, ShoppingBag } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { SearchModal } from "@/components/search/search-modal"
 import { cn } from "@/lib/utils"
@@ -10,6 +10,7 @@ import { siteConfig } from "@/lib/config"
 import { useTranslations } from "next-intl"
 import { useState, useEffect } from "react"
 import type { Category } from "@/types"
+import { useCart } from "@/components/cart/cart-provider"
 
 interface HeaderProps {
   /** All categories (top-level + subcategories) from the repository layer */
@@ -22,6 +23,7 @@ export function Header({ categories = [] }: HeaderProps) {
   const tCommon = useTranslations("common")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const { itemCount } = useCart()
   const sortedCategories = [...allCategories].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
   // Cmd+K / Ctrl+K to open search
   useEffect(() => {
@@ -99,6 +101,10 @@ export function Header({ categories = [] }: HeaderProps) {
 
         {/* Actions */}
         <div className="flex items-center">
+          <Link href="/cart" className="relative inline-flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:bg-accent" aria-label={`Cart${itemCount ? `, ${itemCount} items` : ""}`}>
+            <ShoppingBag className="h-5 w-5" />
+            {itemCount > 0 && <span className="absolute right-0 top-0 grid min-h-4 min-w-4 -translate-y-0.5 translate-x-0.5 place-items-center rounded-full bg-foreground px-1 text-[10px] font-semibold leading-none text-background">{itemCount > 99 ? "99+" : itemCount}</span>}
+          </Link>
           <button
             onClick={() => setSearchOpen(true)}
             className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"

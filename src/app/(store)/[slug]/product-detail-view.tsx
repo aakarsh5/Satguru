@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Phone } from "lucide-react"
+import { Phone, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -19,6 +19,7 @@ import { ProductGrid } from "@/components/products/product-grid"
 import { breadcrumbJsonLd } from "@/lib/structured-data"
 import { siteConfig } from "@/lib/config"
 import type { Product, Brand, Category } from "@/types"
+import { useCart } from "@/components/cart/cart-provider"
 
 interface ProductDetailViewProps {
   product: Product
@@ -39,6 +40,9 @@ export function ProductDetailView({
   const selectedVariant = product.variants.find(
     (v) => v.id === selectedVariantId
   )
+  const { addItem } = useCart()
+  const [quantity, setQuantity] = useState(1)
+  const available = Boolean(selectedVariant && (!selectedVariant.inventory.trackInventory || selectedVariant.inventory.allowBackorder || selectedVariant.inventory.quantity > 0))
 
   const breadcrumbLd = breadcrumbJsonLd([
     { name: "Shop", href: "/shop" },
@@ -116,10 +120,16 @@ export function ProductDetailView({
               <VariantSelector
                 variants={product.variants}
                 selectedVariantId={selectedVariantId}
-                onSelect={setSelectedVariantId}
+                onSelect={(id) => { setSelectedVariantId(id); setQuantity(1) }}
               />
             </div>
           )}
+
+          {selectedVariant && <div className="mt-6 flex flex-wrap items-end gap-3">
+            <label className="text-sm font-medium">Quantity<input aria-label="Quantity" type="number" min={1} max={selectedVariant.inventory.trackInventory && !selectedVariant.inventory.allowBackorder ? Math.max(1, selectedVariant.inventory.quantity) : 100000} value={quantity} onChange={(event) => { const value = Math.max(1, Number(event.target.value) || 1); const stockLimit = selectedVariant.inventory.trackInventory && !selectedVariant.inventory.allowBackorder ? Math.max(1, selectedVariant.inventory.quantity) : 100000; setQuantity(Math.min(value, stockLimit)) }} className="mt-1 block h-11 w-24 rounded-md border px-3 tabular-nums" /></label>
+            <Button size="lg" disabled={!available} onClick={() => addItem(product, selectedVariant.id, quantity)}><ShoppingCart className="h-4 w-4" />{available ? "Add to cart" : "Out of stock"}</Button>
+            {selectedVariant.inventory.trackInventory && <span className="pb-3 text-xs text-muted-foreground">{available ? `${selectedVariant.inventory.quantity} available` : "Currently unavailable"}</span>}
+          </div>}
 
           <Button asChild size="lg" className="mt-6 w-full sm:w-fit">
             <a href={`tel:${siteConfig.contact.phone}`} aria-label={`Call ${siteConfig.contact.phone} to ask about ${product.name}`}>

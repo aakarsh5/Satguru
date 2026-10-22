@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/footer"
 import { AnnouncementBar } from "@/components/layout/announcement-bar"
 import { BackToTop } from "@/components/layout/back-to-top"
 import { categoryRepository } from "@/lib/repositories"
+import { CartProvider } from "@/components/cart/cart-provider"
 
 export default async function StoreLayout({
   children,
@@ -14,7 +15,7 @@ export default async function StoreLayout({
   const categories = await categoryRepository.list()
 
   return (
-    <>
+    <CartProvider>
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
@@ -28,6 +29,6 @@ export default async function StoreLayout({
       </main>
       <Footer />
       <BackToTop />
-    </>
+    </CartProvider>
   )
 }

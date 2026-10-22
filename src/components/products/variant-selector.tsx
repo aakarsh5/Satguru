@@ -54,7 +54,7 @@ export function VariantSelector({
               )
               const isAvailable =
                 matchingVariant &&
-                (matchingVariant.inventory.quantity > 0 ||
+                (!matchingVariant.inventory.trackInventory || matchingVariant.inventory.quantity > 0 ||
                   matchingVariant.inventory.allowBackorder)
 
               return (

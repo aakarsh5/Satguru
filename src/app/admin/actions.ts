@@ -10,6 +10,7 @@ import type { Category, Product } from "@/types"
 import { slugify } from "@/lib/utils"
 import { createHash } from "node:crypto"
 import { adjustVariantInventory, backfillMissingVariantSkus } from "@/lib/repositories/postgres-repository"
+import { updateCustomerOrderStatus, type OrderStatus } from "@/lib/orders"
 
 const productSchema = z.object({
   id: z.string().min(1),
@@ -54,6 +55,16 @@ export async function loginAction(formData: FormData) {
 export async function logoutAction() {
   await clearAdminSession()
   redirect("/admin/login")
+}
+
+export async function updateOrderStatusAction(formData: FormData) {
+  await requireAdmin()
+  const id = String(formData.get("id") ?? "")
+  const status = String(formData.get("status") ?? "")
+  if (!id || !["new", "confirmed", "fulfilled", "cancelled"].includes(status)) throw new Error("Choose a valid order status")
+  await updateCustomerOrderStatus(id, status as OrderStatus)
+  revalidatePath("/admin/orders")
+  revalidatePath("/admin")
 }
 
 export async function saveProductAction(formData: FormData) {
