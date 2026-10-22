@@ -1,6 +1,6 @@
 # Satguru Traders
 
-A production-ready product catalog built with **Next.js**, **Tailwind CSS**, and **shadcn/ui**. Visitors can browse, search, filter, compare product information, and send enquiries without accounts, carts, checkout, or payments.
+A product catalog and guest order request app built with **Next.js**, **Tailwind CSS**, and **shadcn/ui**. Visitors can browse products, add options and quantities to a cart, and submit order requests without creating an account. Satguru Traders reviews and confirms orders.
 
 **[Documentation](docs/CUSTOMIZATION.md)** · **[Report Issue](https://github.com/aakarsh5/Satguru/issues)**
 
@@ -94,7 +94,9 @@ See [CUSTOMIZATION.md](docs/CUSTOMIZATION.md) for the full guide.
 |-------|-------------|
 | `/` | Home — hero, categories, featured products, enquiry CTA |
 | `/shop` | Product catalog with filters and sorting |
+| `/cart` | Guest cart and order request form |
 | `/[slug]` | Product detail, category, or brand (auto-resolved) |
+| `/admin/orders` | Review guest orders and update their status |
 | `/search` | Search (also available via Cmd+K modal) |
 | `/brands` | All brands |
 | `/about` | About the catalog |
