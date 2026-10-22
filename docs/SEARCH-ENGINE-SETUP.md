@@ -4,7 +4,7 @@ The site exposes a crawlable `robots.txt` and a generated `sitemap.xml`. The sit
 
 ## Set the production URL
 
-In Vercel, set `NEXT_PUBLIC_BASE_URL` for the Production environment to the site's preferred public URL, for example `https://www.example.com` (no trailing slash). If this variable is omitted, the app uses Vercel's production project URL when available. Using the same preferred host for canonical URLs, Open Graph URLs, robots, and the sitemap helps search engines recognize one version of the site.
+In Vercel, set `NEXT_PUBLIC_BASE_URL` for the Production environment to the site's preferred public URL, for example `https://www.example.com` (no trailing slash). If this variable is omitted, or accidentally points to localhost in production, the app uses Vercel's production project URL when available. Using the same preferred host for canonical URLs, Open Graph URLs, robots, and the sitemap helps search engines recognize one version of the site.
 
 After deployment, open these URLs on the preferred host and confirm they load:
 

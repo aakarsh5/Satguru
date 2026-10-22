@@ -3,13 +3,23 @@
 // Edit this file to customize the store name, contact info, social links, etc.
 // ============================================================================
 
-// Ignore an empty value from deployment settings so metadataBase always gets
-// a valid absolute URL during a Vercel build.
+// Vercel can expose an environment variable with an empty value when it was
+// created in the project settings but never populated. Treat that the same as
+// an unset URL so metadataBase always receives a valid absolute URL.
 const configuredBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.trim()
 const projectProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim()
 const deploymentUrl = process.env.VERCEL_URL?.trim()
+const parsedBaseUrl = configuredBaseUrl ? URL.parse(configuredBaseUrl) : null
+const isLocalBaseUrl = parsedBaseUrl && (
+  parsedBaseUrl.hostname === "localhost" ||
+  parsedBaseUrl.hostname === "127.0.0.1" ||
+  parsedBaseUrl.hostname === "::1"
+)
+const usableBaseUrl = parsedBaseUrl && !(process.env.NODE_ENV === "production" && isLocalBaseUrl)
+  ? configuredBaseUrl?.replace(/\/+$/, "")
+  : undefined
 const siteUrl =
-  configuredBaseUrl?.replace(/\/+$/, "") ||
+  usableBaseUrl ||
   (projectProductionUrl ? `https://${projectProductionUrl}` : undefined) ||
   (deploymentUrl ? `https://${deploymentUrl}` : "http://localhost:3000")
 
