@@ -36,13 +36,17 @@ export async function generateMetadata({
 
   const product = await productRepository.getBySlug(slug)
   if (product) {
+    const productDescription = product.description.trim()
+    const seoDescription = productDescription.length >= 70
+      ? productDescription
+      : `Explore ${product.name} from Satguru Traders. Contact us to confirm availability and ask for product details.`
     return {
       title: product.name,
-      description: product.description,
+      description: seoDescription,
       alternates: { canonical: `/${product.slug}` },
       openGraph: {
         title: product.name,
-        description: product.description,
+        description: seoDescription,
         type: "website",
         url: `${siteConfig.url}/${product.slug}`,
         images: product.images[0]
